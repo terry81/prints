@@ -12,6 +12,7 @@ description = []
 summary = []
 cfi  = [] #composite fingerprint index
 falsepartialpositives = []
+motifs = []
 
 #########################################################        
 # Core text parsing part
@@ -68,6 +69,33 @@ for l in lines:
         sh_hitlist_length = scan_history_parts[2] 
         sh_scanning_method = scan_history_parts[3]
         #print sh_database + ' ' + sh_iterations + ' ' + sh_hitlist_length + ' ' + sh_scanning_method
+    elif l[0] == 'ic': #initial motifs
+        print l[1] # print the motif
+    elif l[0] == 'il': #length of the initial motif
+        print l[1] 
+    elif l[0] == 'it': #title of the initial motif
+        print l[1]
+    elif l[0] == 'id': #initial sequences
+        # GRLTFNKVIRPCMKKTIYE              MONB_DIOCU     30    -1
+        initial_sequences_parts = l[1].split()
+        sequence = initial_sequences_parts[0]
+        pcode = initial_sequences_parts[1]
+        start = initial_sequences_parts[2]
+        interval = initial_sequences_parts[3]
+        #print sequence + '---' + pcode + '---' + start + '---' + interval 
+    elif l[0] == 'fc': #final motifs
+        print l[1]
+    elif l[0] == 'fl': #length of the final motif
+        print l[1]
+    elif l[0] == 'ft': #title of the initial motif
+        print l[1]
+    elif l[0] == 'fd': #final sequences
+        final_sequences_parts = l[1].split()
+        sequence = initial_sequences_parts[0]
+        pcode = initial_sequences_parts[1]
+        start = initial_sequences_parts[2]
+        interval = initial_sequences_parts[3]
+        #print sequence + '---' + pcode + '---' + start + '---' + interval
         
 #########################################################        
 # Post text processing part
