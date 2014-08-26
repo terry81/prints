@@ -2,6 +2,7 @@
 
 import string
 import re
+from datetime import datetime
 import psycopg2
 
 # file part
@@ -18,7 +19,7 @@ cur = conn.cursor()
 
 lines = []
 literature = []
-description = []
+annotation = []
 summary = []
 cfi  = [] #composite fingerprint index
 falsepartialpositives = []
@@ -46,7 +47,13 @@ for l in lines:
     elif l[0] == 'ga':
         parts = l[1].split(';')
         creation_date = parts[0]
+        # convert date from a string to proper date format ready to be inserted in the database
+        creation_date = datetime.strptime(parts[0], '%d-%b-%Y')
+        creation_date = datetime.date(creation_date)
+        # the same convertion for update date 
         update_date = parts[1].lstrip( 'UPDATE ' );
+        update_date = datetime.strptime(update_date, '%d-%b-%Y')
+        update_date = datetime.date(update_date)
     elif l[0] == 'gt':
         title = l[1]
     # databases
@@ -62,7 +69,7 @@ for l in lines:
     elif l[0] == 'gr':
         literature.append(l[1])
     elif l[0] == 'gd':
-        description.append(l[1])
+        annotation.append(l[1])
     elif l[0] == 'sd':
         summary.append(l[1])
     elif l[0] == 'cd':
@@ -118,9 +125,9 @@ literature_entry = re.split('\n\s*\n', literature)
 for l in literature_entry:
     literature_parts = re.search('(?P<number>\w*)\. (?P<authors>.*)\n(?P<description>(.|\n)*)\n(?P<source>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
     #print literature_parts
-# description
-description = '\n'.join(description)
-#description = description.replace('\n','') #remove the new lines in description. not sure if needed.
+# annotation
+annotation = '\n'.join(annotation)
+#annotation = description.replace('\n','') #remove the new lines in description. not sure if needed.
 
 # summary 
 summary = '\n'.join(summary)
@@ -133,12 +140,13 @@ cfi = '\n'.join(cfi)
 # sanity checks and prints
 
 try:
-    cur.execute("""INSERT INTO fingerprint (identifier, accession, no_motifs, title, cfi, summary) VALUES (%s,%s,%s,%s,%s,%s)""",(identifier, accession, no_motifs, title, cfi, summary ))
+    cur.execute("""INSERT INTO fingerprint (identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",(identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary ))
 #   id_of_fingerprint = cur.fetchone()[0]
 
 except:
     print "Cannot execute insert..."
-    print("""INSERT INTO fingerprint (identifier, accession) VALUES (%s,%s)""",(identifier, accession))
+    print e.pgerror
+    print e.diag.message_detail
 
 	
 conn.commit()
