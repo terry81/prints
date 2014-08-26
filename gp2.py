@@ -2,9 +2,19 @@
 
 import string
 import re
+import psycopg2
 
-file = open('MONELLINB.txt', 'r')
+# file part
+file = open('bigfp.txt', 'r')
 content = file.read()
+
+# db part
+try:
+    conn=psycopg2.connect("dbname='prints_2' host='192.168.100.104' user='anatoliy' password='1a1a@S@S'")
+except:
+    print "I am unable to connect to the database."
+cur = conn.cursor()
+
 
 lines = []
 literature = []
@@ -13,13 +23,14 @@ summary = []
 cfi  = [] #composite fingerprint index
 falsepartialpositives = []
 motifs = []
-
+initial_motif = 'default'
 #########################################################        
 # Core text parsing part
-for l in content.split('\n'):
+for l in content.splitlines(False):
     tag, sep, contents = l.partition(';')
     contents = contents.lstrip()
     lines.append( (tag, contents) )
+
 
 for l in lines:
     # identifier
@@ -70,19 +81,19 @@ for l in lines:
         sh_scanning_method = scan_history_parts[3]
         #print sh_database + ' ' + sh_iterations + ' ' + sh_hitlist_length + ' ' + sh_scanning_method
     elif l[0] == 'ic': #initial motifs
-        print l[1] # print the motif
+        initial_motif = (l[1]) + 'YYYYY'
+        print 'XXXX' + initial_motif # print the motif
     elif l[0] == 'il': #length of the initial motif
         print l[1] 
     elif l[0] == 'it': #title of the initial motif
         print l[1]
     elif l[0] == 'id': #initial sequences
-        # GRLTFNKVIRPCMKKTIYE              MONB_DIOCU     30    -1
         initial_sequences_parts = l[1].split()
         sequence = initial_sequences_parts[0]
         pcode = initial_sequences_parts[1]
         start = initial_sequences_parts[2]
         interval = initial_sequences_parts[3]
-        #print sequence + '---' + pcode + '---' + start + '---' + interval 
+        #print initial_motif + ': ' + '---' + pcode + '---' + start + '---' + interval 
     elif l[0] == 'fc': #final motifs
         print l[1]
     elif l[0] == 'fl': #length of the final motif
@@ -106,7 +117,7 @@ literature = '\n'.join(literature)
 literature_entry = re.split('\n\s*\n', literature)
 for l in literature_entry:
     literature_parts = re.search('(?P<number>\w*)\. (?P<authors>.*)\n(?P<description>(.|\n)*)\n(?P<source>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
-
+    #print literature_parts
 # description
 description = '\n'.join(description)
 #description = description.replace('\n','') #remove the new lines in description. not sure if needed.
@@ -121,12 +132,23 @@ cfi = '\n'.join(cfi)
 #########################################################        
 # sanity checks and prints
 
-#print no_motifs
+try:
+    cur.execute("""INSERT INTO fingerprint (identifier, accession, no_motifs, title, cfi, summary) VALUES (%s,%s,%s,%s,%s,%s)""",(identifier, accession, no_motifs, title, cfi, summary ))
+#   id_of_fingerprint = cur.fetchone()[0]
+
+except:
+    print "Cannot execute insert..."
+    print("""INSERT INTO fingerprint (identifier, accession) VALUES (%s,%s)""",(identifier, accession))
+
+	
+conn.commit()
+	
 #print identifier
+#print no_motifs
 #print accession
 #print creation_date
 #print update_date
-#print literature_parts
+
 #print title
 #print description
 #print summary
