@@ -1,5 +1,6 @@
 #!/usr/bin/python
 
+import sys
 import string
 import re
 from datetime import datetime
@@ -14,11 +15,14 @@ try:
     conn=psycopg2.connect("dbname='prints_2' host='192.168.100.104' user='anatoliy' password='1a1a@S@S'")
 except:
     print "I am unable to connect to the database."
+    sys.exit('Exiting...')
+
 cur = conn.cursor()
+conn.autocommit = True #in case we want to commit automatically
 
 
 lines = []
-literature = []
+reference = []
 annotation = []
 summary = []
 cfi  = [] #composite fingerprint index
@@ -67,7 +71,7 @@ for l in lines:
             else:
                 print 'Database:\t%s\nAccession:\t%s\nTitle:\t\t%s\n' % (db, pp[0], pp[1])
     elif l[0] == 'gr':
-        literature.append(l[1])
+        reference.append(l[1])
     elif l[0] == 'gd':
         annotation.append(l[1])
     elif l[0] == 'sd':
@@ -114,17 +118,36 @@ for l in lines:
         start = initial_sequences_parts[2]
         interval = initial_sequences_parts[3]
         #print sequence + '---' + pcode + '---' + start + '---' + interval
+
+
+############## SQL Part #############
+
+# Create the fingerprint
+try:
+    print cur.execute("""INSERT INTO fingerprint (identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",(identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary ))
+except psycopg2.DatabaseError, e:
+    print 'Error %s' % e
+#    sys.exit('Exiting...')
+
+try:
+    cur.execute("SELECT id FROM fingerprint WHERE identifier = %s", (identifier,))
+    fingerprint_id = cur.fetchone()[0]
+    print "Populating info for fingerprint " + identifier + "with id " + str(fingerprint_id)
+except psycopg2.DatabaseError, e:
+    print 'Error %s' % e
+    sys.exit('Exiting...')
         
 #########################################################        
 # Post text processing part
-# join the literature part and preserve the new lines
-literature = '\n'.join(literature)
+# join the reference part and preserve the new lines
+reference = '\n'.join(reference)
 
-#Split literature entries by new lines
-literature_entry = re.split('\n\s*\n', literature)
-for l in literature_entry:
-    literature_parts = re.search('(?P<number>\w*)\. (?P<authors>.*)\n(?P<description>(.|\n)*)\n(?P<source>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
-    #print literature_parts
+#Split reference entries by new lines
+reference_entry = re.split('\n\s*\n', reference)
+for l in reference_entry:
+    reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?.*[A-Z]?)\n(?P<title>(.|\n)*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
+    print reference_parts
+    cur.execute("INSERT INTO reference(fingerprint_id, author, title, journal, year) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'], reference_parts['year'])) 
 # annotation
 annotation = '\n'.join(annotation)
 #annotation = description.replace('\n','') #remove the new lines in description. not sure if needed.
@@ -136,21 +159,15 @@ summary = '\n'.join(summary)
 cfi = '\n'.join(cfi)
 
 
+    
+# commit when all is fine    
+# conn.commit()	
+
+
 #########################################################        
 # sanity checks and prints
 
-try:
-    cur.execute("""INSERT INTO fingerprint (identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",(identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary ))
-#   id_of_fingerprint = cur.fetchone()[0]
-
-except:
-    print "Cannot execute insert..."
-    print e.pgerror
-    print e.diag.message_detail
-
-	
-conn.commit()
-	
+#print reference	
 #print identifier
 #print no_motifs
 #print accession
