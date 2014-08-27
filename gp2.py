@@ -31,8 +31,8 @@ scan_history = []
 crossreference = []
 initial_motifs = []
 final_motifs = []
+inter_motif_distance = []
 
-#########################################################        
 # Core text parsing part
 for l in content.splitlines(False):
     tag, sep, contents = l.partition(';')
@@ -77,7 +77,6 @@ for l in lines:
         falsepartialpositive_parts = l[1].split('      ')
         falsepartialpositive_code = falsepartialpositive_parts[0]
         falsepartialpositive_description = falsepartialpositive_parts[1]
-        #print falsepartialpositive_code + falsepartialpositive_description
         falsepartialpositives[falsepartialpositive_code] = falsepartialpositive_description
     elif l[0] == 'dn':
         scan_history.append(l[1])
@@ -102,13 +101,16 @@ for l in lines:
         final_motif_length = l[1] 
     elif l[0] == 'ft': #title of the initial motif
         final_motif_title = l[1]
-        final_motifs.append([final_motif,final_motif_length,final_motif_title])
     elif l[0] == 'fd': #final sequences
         final_sequences_parts = l[1].split()
         sequence = initial_sequences_parts[0]
         pcode = initial_sequences_parts[1]
         start = initial_sequences_parts[2]
         interval = initial_sequences_parts[3]
+    elif l[0] == 'KD': #intermotif distance
+        inter_motif_distance_parts = re.search('INTER_MOTIF_DISTANCE REGION=(?P<region>\d+\-\d+);\s+MIN=(?P<min>\d+);\s+MAX=(?P<max>\d+)', l[1] ).groupdict()
+        # Finally compose the final motif
+        final_motifs.append([final_motif,final_motif_length,final_motif_title, inter_motif_distance_parts['region'],inter_motif_distance_parts['min'],inter_motif_distance_parts['max']])
 
 # Before creating the fingerprint apply some fixes
 summary = '\n'.join(summary)
@@ -185,7 +187,18 @@ for l in initial_motifs:
         print 'Error %s' % e
 
 for l in final_motifs:
+    # create the motif
     try:
-        cur.execute("INSERT INTO motif(fingerprint_id,code,length,title,position) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, l[0], l[1], l[2], 'final'))
+        cur.execute("INSERT INTO motif(fingerprint_id,code,length,title,position) VALUES (%s,%s,%s,%s,%s) RETURNING motif_id", (fingerprint_id, l[0], l[1], l[2], 'final'))
+        id_of_new_motif = cur.fetchone()[0]
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e        
+    # insert the intermotif distance
+    try:
+        cur.execute("INSERT INTO intermotifdistance(motif_id,region,min,max) VALUES (%s,%s,%s,%s)", (id_of_new_motif, l[3], l[4], l[5]))
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e 
+for l in inter_motif_distance:
+    inter_motif_distance_parts = re.search('INTER_MOTIF_DISTANCE REGION=(?P<region>\d+\-\d+);\s+MIN=(?P<min>\d+);\s+MAX=(?P<max>\d+)', l ).groupdict()
+    #print inter_motif_distance_parts['region'] + '    ' + inter_motif_distance_parts['min'] + '    ' + inter_motif_distance_parts['max']
+    
