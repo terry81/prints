@@ -32,6 +32,8 @@ crossreference = []
 initial_motifs = []
 final_motifs = []
 inter_motif_distance = []
+initial_seq = []
+final_seq = []
 
 # Core text parsing part
 for l in content.splitlines(False):
@@ -57,9 +59,12 @@ for l in lines:
         creation_date = datetime.strptime(parts[0], '%d-%b-%Y')
         creation_date = datetime.date(creation_date)
         # the same convertion for update date 
-        update_date = parts[1].lstrip( 'UPDATE ' );
-        update_date = datetime.strptime(update_date, '%d-%b-%Y')
-        update_date = datetime.date(update_date)
+        try:
+            update_date = parts[1].lstrip( 'UPDATE ' );
+            update_date = datetime.strptime(update_date, '%d-%b-%Y')
+            update_date = datetime.date(update_date)
+        except:
+            update_date = False #there is no update date
     elif l[0] == 'gt':
         title = l[1]
     # databases (crossreference)
@@ -86,15 +91,9 @@ for l in lines:
         initial_motif_length = l[1] 
     elif l[0] == 'it': #title of the initial motif
         initial_motif_title = l[1]
-        #print initial_motif + '###' + initial_motif_length + '###' + initial_motif_title
         initial_motifs.append([initial_motif,initial_motif_length,initial_motif_title])
     elif l[0] == 'id': #initial sequences
         initial_sequences_parts = l[1].split()
-        sequence = initial_sequences_parts[0]
-        pcode = initial_sequences_parts[1]
-        start = initial_sequences_parts[2]
-        interval = initial_sequences_parts[3]
-        #print initial_motif + ': ' + '---' + pcode + '---' + start + '---' + interval 
     elif l[0] == 'fc': #final motifs
         final_motif = l[1]
     elif l[0] == 'fl': #length of the final motif
@@ -103,12 +102,9 @@ for l in lines:
         final_motif_title = l[1]
     elif l[0] == 'fd': #final sequences
         final_sequences_parts = l[1].split()
-        sequence = initial_sequences_parts[0]
-        pcode = initial_sequences_parts[1]
-        start = initial_sequences_parts[2]
-        interval = initial_sequences_parts[3]
+        final_seq.append([final_motif,final_sequences_parts])
     elif l[0] == 'KD': #intermotif distance
-        inter_motif_distance_parts = re.search('INTER_MOTIF_DISTANCE REGION=(?P<region>\d+\-\d+);\s+MIN=(?P<min>\d+);\s+MAX=(?P<max>\d+)', l[1] ).groupdict()
+        inter_motif_distance_parts = re.search('INTER_MOTIF_DISTANCE REGION=(?P<region>.*);\s+MIN=(?P<min>.*);\s+MAX=(?P<max>.*)', l[1] ).groupdict()
         # Finally compose the final motif
         final_motifs.append([final_motif,final_motif_length,final_motif_title, inter_motif_distance_parts['region'],inter_motif_distance_parts['min'],inter_motif_distance_parts['max']])
 
@@ -124,17 +120,19 @@ reference = '\n'.join(reference)
 # SQL Part 
 # Create the fingerprint
 try:
-    cur.execute("INSERT INTO fingerprint (identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary ))
+    cur.execute("INSERT INTO fingerprint (identifier, accession, no_motifs, creation_date, title, annotation, cfi, summary) VALUES (%s,%s,%s,%s,%s,%s,%s,%s) RETURNING id",(identifier, accession, no_motifs, creation_date, title, annotation, cfi, summary ))
+    fingerprint_id = cur.fetchone()[0]
+    print "Populating info for fingerprint ", identifier, " with id ", fingerprint_id
 except psycopg2.DatabaseError, e:
     print 'Error %s' % e
 
-# Get the id of the fingerprint
-try:
-    cur.execute("SELECT id FROM fingerprint WHERE identifier = %s", (identifier,))
-    fingerprint_id = cur.fetchone()[0]
-    print "Populating info for fingerprint " + identifier + " with id " + str(fingerprint_id)
-except psycopg2.DatabaseError, e:
-    print 'Error %s' % e
+# Set update date if there is such
+
+if update_date:
+    try:
+        cur.execute("UPDATE fingerprint SET update_date = %s WHERE id = %s",(update_date, fingerprint_id))
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e 
 
 # Split reference entries by new lines
 reference_entry = re.split('\n\s*\n', reference)
@@ -186,6 +184,10 @@ for l in initial_motifs:
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 
+for l in inter_motif_distance:
+    inter_motif_distance_parts = re.search('INTER_MOTIF_DISTANCE REGION=(?P<region>\d+\-\d+);\s+MIN=(?P<min>\d+);\s+MAX=(?P<max>\d+)', l ).groupdict()
+    #print inter_motif_distance_parts['region'] + '    ' + inter_motif_distance_parts['min'] + '    ' + inter_motif_distance_parts['max']
+        
 for l in final_motifs:
     # create the motif
     try:
@@ -198,7 +200,21 @@ for l in final_motifs:
         cur.execute("INSERT INTO intermotifdistance(motif_id,region,min,max) VALUES (%s,%s,%s,%s)", (id_of_new_motif, l[3], l[4], l[5]))
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e 
-for l in inter_motif_distance:
-    inter_motif_distance_parts = re.search('INTER_MOTIF_DISTANCE REGION=(?P<region>\d+\-\d+);\s+MIN=(?P<min>\d+);\s+MAX=(?P<max>\d+)', l ).groupdict()
-    #print inter_motif_distance_parts['region'] + '    ' + inter_motif_distance_parts['min'] + '    ' + inter_motif_distance_parts['max']
-    
+
+for l in initial_seq:
+    try:
+        #get the corresponding motif_id first
+        cur.execute("SELECT motif_id FROM motif WHERE code = %s and position = 'initial'", (l[0],))
+        motif_id = cur.fetchone()[0]
+        cur.execute("INSERT INTO seq(motif_id,sequence,pcode,start,interval) VALUES (%s,%s,%s,%s,%s)", (motif_id, l[1][0], l[1][1], l[1][2], l[1][3]))
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+
+for l in final_seq:
+    try:
+        #get the corresponding motif_id first
+        cur.execute("SELECT motif_id FROM motif WHERE code = %s and position = 'final'", (l[0],))
+        motif_id = cur.fetchone()[0]
+        cur.execute("INSERT INTO seq(motif_id,sequence,pcode,start,interval) VALUES (%s,%s,%s,%s,%s)", (motif_id, l[1][0], l[1][1], l[1][2], l[1][3]))
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e        
