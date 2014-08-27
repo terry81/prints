@@ -148,8 +148,10 @@ reference = '\n'.join(reference)
 # Split reference entries by new lines
 reference_entry = re.split('\n\s*\n', reference)
 for l in reference_entry:
-    reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?.*[A-Z]?)\n(?P<title>(.|\n)*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
-#    print reference_parts
+#    reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]?)\n(?P<title>(.|\n)*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
+    reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]{2,}.*)\n(?P<title>(.|\n)*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
+
+    print reference_parts
     cur.execute("INSERT INTO reference(fingerprint_id, author, title, journal, year) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'], reference_parts['year'])) 
 
 # falsepartialpositives    
@@ -158,8 +160,6 @@ print '##############'
 for key, value in falsepartialpositives.items():
     #print key + '#####' + value
     cur.execute("INSERT INTO falsepartialpositives(fingerprint_id, code, description) VALUES (%s,%s,%s)", (fingerprint_id, key, value)) 
-
-print '##############'    
     
 # annotation
 annotation = '\n'.join(annotation)
