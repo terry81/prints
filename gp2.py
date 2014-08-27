@@ -26,9 +26,10 @@ reference = []
 annotation = []
 summary = []
 cfi  = [] #composite fingerprint index
-falsepartialpositives = []
+falsepartialpositives = {}
 motifs = []
 initial_motif = 'default'
+
 #########################################################        
 # Core text parsing part
 for l in content.splitlines(False):
@@ -79,10 +80,11 @@ for l in lines:
     elif l[0] == 'cd':
         cfi.append(l[1])
     elif l[0] == 'tt':
-        falsepartialpositive_parts = l[1].split('     ')
+        falsepartialpositive_parts = l[1].split('      ')
         falsepartialpositive_code = falsepartialpositive_parts[0]
         falsepartialpositive_description = falsepartialpositive_parts[1]
         #print falsepartialpositive_code + falsepartialpositive_description
+        falsepartialpositives[falsepartialpositive_code] = falsepartialpositive_description
     elif l[0] == 'dn':
         #scan_history.append(l[1])
         scan_history_parts = l[1].split()
@@ -129,6 +131,7 @@ except psycopg2.DatabaseError, e:
     print 'Error %s' % e
 #    sys.exit('Exiting...')
 
+# Get the id of the fingerprint
 try:
     cur.execute("SELECT id FROM fingerprint WHERE identifier = %s", (identifier,))
     fingerprint_id = cur.fetchone()[0]
@@ -142,12 +145,22 @@ except psycopg2.DatabaseError, e:
 # join the reference part and preserve the new lines
 reference = '\n'.join(reference)
 
-#Split reference entries by new lines
+# Split reference entries by new lines
 reference_entry = re.split('\n\s*\n', reference)
 for l in reference_entry:
     reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?.*[A-Z]?)\n(?P<title>(.|\n)*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
-    print reference_parts
+#    print reference_parts
     cur.execute("INSERT INTO reference(fingerprint_id, author, title, journal, year) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'], reference_parts['year'])) 
+
+# falsepartialpositives    
+
+print '##############'
+for key, value in falsepartialpositives.items():
+    #print key + '#####' + value
+    cur.execute("INSERT INTO falsepartialpositives(fingerprint_id, code, description) VALUES (%s,%s,%s)", (fingerprint_id, key, value)) 
+
+print '##############'    
+    
 # annotation
 annotation = '\n'.join(annotation)
 #annotation = description.replace('\n','') #remove the new lines in description. not sure if needed.
@@ -178,3 +191,4 @@ cfi = '\n'.join(cfi)
 #print description
 #print summary
 #print cfi
+#print falsepartialpositives
