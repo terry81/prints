@@ -28,7 +28,10 @@ summary = []
 cfi  = [] #composite fingerprint index
 falsepartialpositives = {}
 motifs = []
-initial_motif = 'default'
+scan_history = []
+crossreference = []
+initial_motifs = []
+final_motifs = []
 
 #########################################################        
 # Core text parsing part
@@ -36,7 +39,6 @@ for l in content.splitlines(False):
     tag, sep, contents = l.partition(';')
     contents = contents.lstrip()
     lines.append( (tag, contents) )
-
 
 for l in lines:
     # identifier
@@ -61,16 +63,9 @@ for l in lines:
         update_date = datetime.date(update_date)
     elif l[0] == 'gt':
         title = l[1]
-    # databases
+    # databases (crossreference)
     elif l[0] == 'gp':
-        parts = l[1].split(';')
-        db = parts[0]
-        for el in parts[1:]:
-            pp = string.lstrip(el).split(' ')
-            if len(pp) < 2:
-                print 'Database:\t%s\nAccession:\t%s\n' % (db, pp[0])
-            else:
-                print 'Database:\t%s\nAccession:\t%s\nTitle:\t\t%s\n' % (db, pp[0], pp[1])
+        crossreference.append(l[1])
     elif l[0] == 'gr':
         reference.append(l[1])
     elif l[0] == 'gd':
@@ -86,20 +81,15 @@ for l in lines:
         #print falsepartialpositive_code + falsepartialpositive_description
         falsepartialpositives[falsepartialpositive_code] = falsepartialpositive_description
     elif l[0] == 'dn':
-        #scan_history.append(l[1])
-        scan_history_parts = l[1].split()
-        sh_database = scan_history_parts[0]
-        sh_iterations = scan_history_parts[1]
-        sh_hitlist_length = scan_history_parts[2] 
-        sh_scanning_method = scan_history_parts[3]
-        #print sh_database + ' ' + sh_iterations + ' ' + sh_hitlist_length + ' ' + sh_scanning_method
+        scan_history.append(l[1])
     elif l[0] == 'ic': #initial motifs
-        initial_motif = (l[1]) + 'YYYYY'
-        print 'XXXX' + initial_motif # print the motif
+        initial_motif = l[1]
     elif l[0] == 'il': #length of the initial motif
-        print l[1] 
+        initial_motif_length = l[1] 
     elif l[0] == 'it': #title of the initial motif
-        print l[1]
+        initial_motif_title = l[1]
+        #print initial_motif + '###' + initial_motif_length + '###' + initial_motif_title
+        initial_motifs.append([initial_motif,initial_motif_length,initial_motif_title])
     elif l[0] == 'id': #initial sequences
         initial_sequences_parts = l[1].split()
         sequence = initial_sequences_parts[0]
@@ -108,11 +98,12 @@ for l in lines:
         interval = initial_sequences_parts[3]
         #print initial_motif + ': ' + '---' + pcode + '---' + start + '---' + interval 
     elif l[0] == 'fc': #final motifs
-        print l[1]
+        final_motif = l[1]
     elif l[0] == 'fl': #length of the final motif
-        print l[1]
+        final_motif_length = l[1] 
     elif l[0] == 'ft': #title of the initial motif
-        print l[1]
+        final_motif_title = l[1]
+        final_motifs.append([final_motif,final_motif_length,final_motif_title])
     elif l[0] == 'fd': #final sequences
         final_sequences_parts = l[1].split()
         sequence = initial_sequences_parts[0]
@@ -124,12 +115,19 @@ for l in lines:
 
 ############## SQL Part #############
 
+
+# Before creating the fingerprint apply some fixes
+summary = '\n'.join(summary)
+# annotation
+annotation = '\n'.join(annotation)
+# cfi
+cfi = '\n'.join(cfi)
+
 # Create the fingerprint
 try:
-    print cur.execute("""INSERT INTO fingerprint (identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)""",(identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary ))
+    cur.execute("INSERT INTO fingerprint (identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)",(identifier, accession, no_motifs, creation_date, update_date, title, annotation, cfi, summary ))
 except psycopg2.DatabaseError, e:
     print 'Error %s' % e
-#    sys.exit('Exiting...')
 
 # Get the id of the fingerprint
 try:
@@ -138,7 +136,6 @@ try:
     print "Populating info for fingerprint " + identifier + "with id " + str(fingerprint_id)
 except psycopg2.DatabaseError, e:
     print 'Error %s' % e
-    sys.exit('Exiting...')
         
 #########################################################        
 # Post text processing part
@@ -150,34 +147,72 @@ reference_entry = re.split('\n\s*\n', reference)
 for l in reference_entry:
 #    reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]?)\n(?P<title>(.|\n)*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
     reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]{2,}.*)\n(?P<title>(.|\n)*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
-
-    print reference_parts
-    cur.execute("INSERT INTO reference(fingerprint_id, author, title, journal, year) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'], reference_parts['year'])) 
-
+    try:
+        cur.execute("INSERT INTO reference(fingerprint_id, author, title, journal, year) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'], reference_parts['year'])) 
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+        
 # falsepartialpositives    
 
 print '##############'
 for key, value in falsepartialpositives.items():
     #print key + '#####' + value
-    cur.execute("INSERT INTO falsepartialpositives(fingerprint_id, code, description) VALUES (%s,%s,%s)", (fingerprint_id, key, value)) 
-    
-# annotation
-annotation = '\n'.join(annotation)
-#annotation = description.replace('\n','') #remove the new lines in description. not sure if needed.
+    try:
+        cur.execute("INSERT INTO falsepartialpositives(fingerprint_id, code, description) VALUES (%s,%s,%s)", (fingerprint_id, key, value)) 
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+# scan history
 
-# summary 
-summary = '\n'.join(summary)
+#scan_history.append(l[1])
+for l in scan_history:
+    scan_history_parts = l.split()
+    sh_database = scan_history_parts[0]
+    sh_iterations = scan_history_parts[1]
+    sh_hitlist_length = scan_history_parts[2] 
+    sh_scanning_method = scan_history_parts[3]
+    #print sh_database + ' ' + sh_iterations + ' ' + sh_hitlist_length + ' ' + sh_scanning_method
+    try:
+        cur.execute("INSERT INTO scanhistory(database, iterations_number, hitlist_length, scanning_method, fingerprint_id) VALUES (%s,%s,%s,%s,%s)", (sh_database, sh_iterations, sh_hitlist_length, sh_scanning_method, fingerprint_id))
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
 
-# cfi
-cfi = '\n'.join(cfi)
+
+# crossreference
+
+for l in crossreference:
+        parts = l.split(';')
+        db = parts[0]
+        for el in parts[1:]:
+            pp = string.lstrip(el).split(' ')
+            if len(pp) < 2:
+                #print 'Database:\t%s\nAccession:\t%s\n' % (db, pp[0])
+                try:
+                    cur.execute("INSERT INTO crossreference(fingerprint_id,name,accession) VALUES (%s,%s,%s)", (fingerprint_id, db, pp[0]))
+                except psycopg2.DatabaseError, e:
+                    print 'Error %s' % e
+            else:
+                #print 'Database:\t%s\nAccession:\t%s\nTitle:\t\t%s\n' % (db, pp[0], pp[1])
+                try:
+                    cur.execute("INSERT INTO crossreference(fingerprint_id,name,accession, identifier) VALUES (%s,%s,%s,%s)", (fingerprint_id, db, pp[0],pp[1]))
+                except psycopg2.DatabaseError, e:
+                    print 'Error %s' % e
+        
 
 
-    
-# commit when all is fine    
-# conn.commit()	
+        
+for l in initial_motifs:
+    try:
+        cur.execute("INSERT INTO motif(fingerprint_id,code,length,title,position) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, l[0], l[1], l[2], 'initial'))
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
 
-
-#########################################################        
+for l in final_motifs:
+    try:
+        cur.execute("INSERT INTO motif(fingerprint_id,code,length,title,position) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, l[0], l[1], l[2], 'final'))
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e        
+     
+        #########################################################        
 # sanity checks and prints
 
 #print reference	
@@ -192,3 +227,4 @@ cfi = '\n'.join(cfi)
 #print summary
 #print cfi
 #print falsepartialpositives
+#print initial_motifs
