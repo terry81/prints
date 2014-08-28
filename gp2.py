@@ -7,7 +7,7 @@ from datetime import datetime
 import psycopg2
 
 # file part
-file = open('bigfp.txt', 'r')
+file = open('mega_fp.txt', 'r')
 content = file.read()
 
 # db part
@@ -79,10 +79,15 @@ for l in lines:
     elif l[0] == 'cd':
         cfi.append(l[1])
     elif l[0] == 'tt':
-        falsepartialpositive_parts = l[1].split('      ')
-        falsepartialpositive_code = falsepartialpositive_parts[0]
-        falsepartialpositive_description = falsepartialpositive_parts[1]
-        falsepartialpositives[falsepartialpositive_code] = falsepartialpositive_description
+        if not l[1]: #skip empty lines
+            continue
+        try:
+            falsepartialpositive_parts = l[1].split('      ')
+            falsepartialpositive_code = falsepartialpositive_parts[0]
+            falsepartialpositive_description = falsepartialpositive_parts[1].lstrip()
+            falsepartialpositives[falsepartialpositive_code] = falsepartialpositive_description
+        except:
+            print 'Problem with falsepartialpositive line(empty?): ', l[1]
     elif l[0] == 'dn':
         scan_history.append(l[1])
     elif l[0] == 'ic': #initial motifs
@@ -137,17 +142,18 @@ if update_date:
 # Split reference entries by new lines
 reference_entry = re.split('\n\s*\n', reference)
 for l in reference_entry:
-    reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]{2,}.*)\n(?P<title>(.|\n)*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
+    reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]{2,}.*)\n(?P<title>.*[a-z](.|\n)*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
     try:
         cur.execute("INSERT INTO reference(fingerprint_id, author, title, journal, year) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'], reference_parts['year'])) 
     except psycopg2.DatabaseError, e:
-        print 'Error %s' % e
+        print 'Reference ','Error %s' % e
+        print reference_entry
         
 for key, value in falsepartialpositives.items():
     try:
         cur.execute("INSERT INTO falsepartialpositives(fingerprint_id, code, description) VALUES (%s,%s,%s)", (fingerprint_id, key, value)) 
     except psycopg2.DatabaseError, e:
-        print 'Error %s' % e
+        print 'Falsepartialpositives ','Error %s' % e
 
 for l in scan_history:
     scan_history_parts = l.split()
@@ -158,7 +164,7 @@ for l in scan_history:
     try:
         cur.execute("INSERT INTO scanhistory(database, iterations_number, hitlist_length, scanning_method, fingerprint_id) VALUES (%s,%s,%s,%s,%s)", (sh_database, sh_iterations, sh_hitlist_length, sh_scanning_method, fingerprint_id))
     except psycopg2.DatabaseError, e:
-        print 'Error %s' % e
+        print 'Scan history ','Error %s' % e
 
 for l in crossreference:
         parts = l.split(';')
@@ -182,11 +188,10 @@ for l in initial_motifs:
     try:
         cur.execute("INSERT INTO motif(fingerprint_id,code,length,title,position) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, l[0], l[1], l[2], 'initial'))
     except psycopg2.DatabaseError, e:
-        print 'Error %s' % e
+        print 'Initial motifs ','Error %s' % e
 
 for l in inter_motif_distance:
     inter_motif_distance_parts = re.search('INTER_MOTIF_DISTANCE REGION=(?P<region>\d+\-\d+);\s+MIN=(?P<min>\d+);\s+MAX=(?P<max>\d+)', l ).groupdict()
-    #print inter_motif_distance_parts['region'] + '    ' + inter_motif_distance_parts['min'] + '    ' + inter_motif_distance_parts['max']
         
 for l in final_motifs:
     # create the motif
@@ -194,12 +199,12 @@ for l in final_motifs:
         cur.execute("INSERT INTO motif(fingerprint_id,code,length,title,position) VALUES (%s,%s,%s,%s,%s) RETURNING motif_id", (fingerprint_id, l[0], l[1], l[2], 'final'))
         id_of_new_motif = cur.fetchone()[0]
     except psycopg2.DatabaseError, e:
-        print 'Error %s' % e        
+        print 'Motif ','Error %s' % e        
     # insert the intermotif distance
     try:
         cur.execute("INSERT INTO intermotifdistance(motif_id,region,min,max) VALUES (%s,%s,%s,%s)", (id_of_new_motif, l[3], l[4], l[5]))
     except psycopg2.DatabaseError, e:
-        print 'Error %s' % e 
+        print 'Intermotifdistance ', 'Error %s' % e 
 
 for l in initial_seq:
     try:
@@ -208,7 +213,7 @@ for l in initial_seq:
         motif_id = cur.fetchone()[0]
         cur.execute("INSERT INTO seq(motif_id,sequence,pcode,start,interval) VALUES (%s,%s,%s,%s,%s)", (motif_id, l[1][0], l[1][1], l[1][2], l[1][3]))
     except psycopg2.DatabaseError, e:
-        print 'Error %s' % e
+        print 'Initial seq', 'Error %s' % e
 
 for l in final_seq:
     try:
@@ -217,4 +222,4 @@ for l in final_seq:
         motif_id = cur.fetchone()[0]
         cur.execute("INSERT INTO seq(motif_id,sequence,pcode,start,interval) VALUES (%s,%s,%s,%s,%s)", (motif_id, l[1][0], l[1][1], l[1][2], l[1][3]))
     except psycopg2.DatabaseError, e:
-        print 'Error %s' % e        
+        print 'Final seq ', 'Error %s' % e        
