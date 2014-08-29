@@ -7,7 +7,7 @@ from datetime import datetime
 import psycopg2
 
 # file part
-file = open('mega_fp.txt', 'r')
+file = open('bigfp.txt', 'r')
 content = file.read()
 
 # db part
@@ -82,7 +82,7 @@ for l in lines:
         if not l[1]: #skip empty lines
             continue
         try:
-            falsepartialpositive_parts = l[1].split('      ')
+            falsepartialpositive_parts = re.split('\s{4,}', l[1])
             falsepartialpositive_code = falsepartialpositive_parts[0]
             falsepartialpositive_description = falsepartialpositive_parts[1].lstrip()
             falsepartialpositives[falsepartialpositive_code] = falsepartialpositive_description
@@ -142,7 +142,7 @@ if update_date:
 # Split reference entries by new lines
 reference_entry = re.split('\n\s*\n', reference)
 for l in reference_entry:
-    reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]{2,}.*)\n(?P<title>.*[a-z](.|\n)*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
+    reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]{2,}.*)\n(?P<title>.*[a-z]{2,}.*\n?.*[a-z]{2,}.*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
     try:
         cur.execute("INSERT INTO reference(fingerprint_id, author, title, journal, year) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'], reference_parts['year'])) 
     except psycopg2.DatabaseError, e:
