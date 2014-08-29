@@ -148,8 +148,9 @@ for entry in fingerprints:
     # Split reference entries by new lines
     reference_entry = re.split('\n\s*\n', reference)
     for l in reference_entry:
-        # the following re covers authors on multiple lines and titles on multiple lines
-        reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]{2,}.*)\n(?P<title>.*[a-z]{2,}.*\n?.*[a-z]{2,}.*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
+        try:
+            reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]{2,}.*)\n(?P<title>.*[a-z]{2,}.*\n?.*[a-z]{2,}.*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
+        except: 'Cannot parse reference for ', identifier, " with id ", fingerprint_id, l
         try:
             cur.execute("INSERT INTO reference(fingerprint_id, author, title, journal, year) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'], reference_parts['year'])) 
         except psycopg2.DatabaseError, e:
