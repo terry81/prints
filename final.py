@@ -5,13 +5,13 @@ import re
 from datetime import datetime
 import psycopg2
 
-fingerprints_file = open( "prints42_0.kdat", "r" )
+fingerprints_file = open( "prints42_0.kdat.cropped", "r" )
 fingerprints_content = fingerprints_file.read()
 fingerprints = fingerprints_content.split('---custom_delimiter_for_fingerprint---')
 
 # db part
 try:
-    conn=psycopg2.connect("dbname='prints_2' host='192.168.100.104' user='anatoliy' password='1a1a@S@S'")
+    conn=psycopg2.connect("dbname='prints_2' host='localhost' user='anatoliy' password='1a1a@S@S'")
 except:
     print "I am unable to connect to the database."
     sys.exit('Exiting...')
@@ -105,6 +105,7 @@ for entry in fingerprints:
             initial_motifs.append([initial_motif,initial_motif_length,initial_motif_title])
         elif l[0] == 'id': #initial sequences
             initial_sequences_parts = l[1].split()
+            initial_seq.append([initial_motif,initial_sequences_parts])
         elif l[0] == 'fc': #final motifs
             final_motif = l[1]
         elif l[0] == 'fl': #length of the final motif
@@ -147,6 +148,7 @@ for entry in fingerprints:
 
     # Split reference entries by new lines
     reference_entry = re.split('\n\s*\n', reference)
+
     for l in reference_entry:
         try:
             reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]{2,}.*)\n(?P<title>.*[a-z]{2,}.*\n?.*[a-z]{2,}.*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
@@ -226,9 +228,12 @@ for entry in fingerprints:
     for l in final_seq:
         try:
             #get the corresponding motif_id first
-            cur.execute("SELECT motif_id FROM motif WHERE code = %s and position = 'final'", (l[0],))
-            motif_id = cur.fetchone()[0]
+            cur.execute("SELECT motif_id FROM motif WHERE code = %s and position = 'final'", (l[0],))        
+            try:
+                motif_id = cur.fetchone()[0]
+            except:
+                print "Seqs cannot be inserted for final motifs for fingerprint ", identifier
+                continue
             cur.execute("INSERT INTO seq(motif_id,sequence,pcode,start,interval) VALUES (%s,%s,%s,%s,%s)", (motif_id, l[1][0], l[1][1], l[1][2], l[1][3]))
         except psycopg2.DatabaseError, e:
-            print 'Final seq ', 'Error %s' % e        
-
+            print 'Final seq ', 'Error %s' % e
