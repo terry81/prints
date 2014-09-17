@@ -5,13 +5,13 @@ import re
 from datetime import datetime
 import psycopg2
 
-fingerprints_file = open( "prints42_0.kdat.cropped", "r" )
+fingerprints_file = open( "prints42_0.kdat", "r" )
 fingerprints_content = fingerprints_file.read()
 fingerprints = fingerprints_content.split('---custom_delimiter_for_fingerprint---')
 
 # db part
 try:
-    conn=psycopg2.connect("dbname='prints_2' host='localhost' user='anatoliy' password='1a1a@S@S'")
+    conn=psycopg2.connect("dbname='prints_2' host='localhost' user='anatoliyd' password='adimitrov'")
 except:
     print "I am unable to connect to the database."
     sys.exit('Exiting...')
