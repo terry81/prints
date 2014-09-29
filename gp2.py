@@ -7,12 +7,12 @@ from datetime import datetime
 import psycopg2
 
 # file part
-file = open('bigfp.txt', 'r')
+file = open('true_p.txt', 'r')
 content = file.read()
 
 # db part
 try:
-    conn=psycopg2.connect("dbname='prints_2' host='192.168.100.104' user='anatoliy' password='1a1a@S@S'")
+    conn=psycopg2.connect("dbname='prints_2' host='localhost' user='anatoliyd' password='adimitrov'")
 except:
     print "I am unable to connect to the database."
     sys.exit('Exiting...')
@@ -34,6 +34,7 @@ final_motifs = []
 inter_motif_distance = []
 initial_seq = []
 final_seq = []
+true_positives = []
 
 # Core text parsing part
 for l in content.splitlines(False):
@@ -112,7 +113,12 @@ for l in lines:
         inter_motif_distance_parts = re.search('INTER_MOTIF_DISTANCE REGION=(?P<region>.*);\s+MIN=(?P<min>.*);\s+MAX=(?P<max>.*)', l[1] ).groupdict()
         # Finally compose the final motif
         final_motifs.append([final_motif,final_motif_length,final_motif_title, inter_motif_distance_parts['region'],inter_motif_distance_parts['min'],inter_motif_distance_parts['max']])
-
+    elif l[0] == 'tp': #true positives
+        tp_entry = l[1].split()
+        for i in tp_entry:
+            true_positives.append(i)
+            
+#sys.exit()
 # Before creating the fingerprint apply some fixes
 summary = '\n'.join(summary)
 # annotation
@@ -223,3 +229,12 @@ for l in final_seq:
         cur.execute("INSERT INTO seq(motif_id,sequence,pcode,start,interval) VALUES (%s,%s,%s,%s,%s)", (motif_id, l[1][0], l[1][1], l[1][2], l[1][3]))
     except psycopg2.DatabaseError, e:
         print 'Final seq ', 'Error %s' % e        
+
+        
+for i in true_positives:
+    try:
+        cur.execute("select id from falsepartialpositives where fingerprint_id= %s and code= %s", (fingerprint_id,i))
+        protein_id = cur.fetchone()[0]
+        cur.execute("INSERT INTO truepositives(fingerprint_id,protein_id) VALUES (%s,%s)", (fingerprint_id, protein_id))
+    except psycopg2.DatabaseError, e:
+        print 'True positives ', 'Error %s' % e 
