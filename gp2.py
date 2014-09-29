@@ -26,6 +26,7 @@ annotation = []
 summary = []
 cfi  = [] #composite fingerprint index
 falsepartialpositives = {}
+truepartialpositives = {}
 motifs = []
 scan_history = []
 crossreference = []
@@ -117,6 +118,12 @@ for l in lines:
         tp_entry = l[1].split()
         for i in tp_entry:
             true_positives.append(i)
+    elif l[0] == 'sn': #true partial positives number of elements
+        tpp_number_of_elements = re.search(r'Codes involving (\d+) elements', l[1]).group(1)
+    elif l[0] == 'st':
+        true_partial_entry = l[1].split()
+        for i in true_partial_entry:
+            truepartialpositives[i] = tpp_number_of_elements 
             
 #sys.exit()
 # Before creating the fingerprint apply some fixes
@@ -238,3 +245,11 @@ for i in true_positives:
         cur.execute("INSERT INTO truepositives(fingerprint_id,protein_id) VALUES (%s,%s)", (fingerprint_id, protein_id))
     except psycopg2.DatabaseError, e:
         print 'True positives ', 'Error %s' % e 
+                
+for key, value in truepartialpositives.items():
+    try:
+        cur.execute("select id from falsepartialpositives where fingerprint_id= %s and code= %s", (fingerprint_id,key))
+        protein_id = cur.fetchone()[0]
+        cur.execute("INSERT INTO truepartialpositives(fingerprint_id, protein_id, numberofelements) VALUES (%s,%s,%s)", (fingerprint_id, protein_id, value)) 
+    except psycopg2.DatabaseError, e:
+        print 'Falsepartialpositives ','Error %s' % e

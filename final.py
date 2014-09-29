@@ -29,6 +29,8 @@ for entry in fingerprints:
     summary = []
     cfi  = [] #composite fingerprint index
     falsepartialpositives = {}
+    truepartialpositives = {}
+    true_positives = []
     motifs = []
     scan_history = []
     crossreference = []
@@ -37,7 +39,7 @@ for entry in fingerprints:
     inter_motif_distance = []
     initial_seq = []
     final_seq = []
-
+    
     for l in entry.splitlines(False):
         tag, sep, contents = l.partition(';')
         contents = contents.lstrip()
@@ -94,6 +96,16 @@ for entry in fingerprints:
                 falsepartialpositives[falsepartialpositive_code] = falsepartialpositive_description
             except:
                 print 'Problem with falsepartialpositive line(empty?): ', l[1]
+        elif l[0] == 'tp': #true positives
+            tp_entry = l[1].split()
+            for i in tp_entry:
+                true_positives.append(i)
+        elif l[0] == 'sn': #true partial positives number of elements
+            tpp_number_of_elements = re.search(r'Codes involving (\d+) elements', l[1]).group(1)
+        elif l[0] == 'st':
+            true_partial_entry = l[1].split()
+            for i in true_partial_entry:
+                truepartialpositives[i] = tpp_number_of_elements 
         elif l[0] == 'dn':
             scan_history.append(l[1])
         elif l[0] == 'ic': #initial motifs
@@ -119,6 +131,7 @@ for entry in fingerprints:
             inter_motif_distance_parts = re.search('INTER_MOTIF_DISTANCE REGION=(?P<region>.*);\s+MIN=(?P<min>.*);\s+MAX=(?P<max>.*)', l[1] ).groupdict()
             # Finally compose the final motif
             final_motifs.append([final_motif,final_motif_length,final_motif_title, inter_motif_distance_parts['region'],inter_motif_distance_parts['min'],inter_motif_distance_parts['max']])
+        
 
     # Before creating the fingerprint apply some fixes
     summary = '\n'.join(summary)
@@ -237,3 +250,17 @@ for entry in fingerprints:
             cur.execute("INSERT INTO seq(motif_id,sequence,pcode,start,interval) VALUES (%s,%s,%s,%s,%s)", (motif_id, l[1][0], l[1][1], l[1][2], l[1][3]))
         except psycopg2.DatabaseError, e:
             print 'Final seq ', 'Error %s' % e
+    for i in true_positives:
+        try:
+            cur.execute("select id from falsepartialpositives where fingerprint_id= %s and code= %s", (fingerprint_id,i))
+            protein_id = cur.fetchone()[0]
+            cur.execute("INSERT INTO truepositives(fingerprint_id,protein_id) VALUES (%s,%s)", (fingerprint_id, protein_id))
+        except psycopg2.DatabaseError, e:
+            print 'True positives ', 'Error %s' % e
+    for key, value in truepartialpositives.items():
+        try:
+            cur.execute("select id from falsepartialpositives where fingerprint_id= %s and code= %s", (fingerprint_id,key))
+            protein_id = cur.fetchone()[0]
+            cur.execute("INSERT INTO truepartialpositives(fingerprint_id, protein_id, numberofelements) VALUES (%s,%s,%s)", (fingerprint_id, protein_id, value)) 
+        except psycopg2.DatabaseError, e:
+            print 'Falsepartialpositives ','Error %s' % e
