@@ -25,7 +25,7 @@ reference = []
 annotation = []
 summary = []
 cfi  = [] #composite fingerprint index
-falsepartialpositives = {}
+protein = {}
 truepartialpositives = {}
 motifs = []
 scan_history = []
@@ -52,7 +52,12 @@ for l in lines:
         accession = l[1]
     # no_motifs
     elif l[0] == 'gn':
-        no_motifs = l[1]
+	#COMPOUND(6)
+	try:
+    	    no_motifs = re.search('COMPOUND\((\d+)\)', l[1]).group(1)
+            print no_motifs
+        except:
+            no_motifs = '' 
     # dates
     elif l[0] == 'ga':
         parts = l[1].split(';')
@@ -73,7 +78,10 @@ for l in lines:
     elif l[0] == 'gp':
         crossreference.append(l[1])
     elif l[0] == 'gr':
-        reference.append(l[1])
+        try:
+            reference.append(l[1])
+        except:
+            reference = 0 
     elif l[0] == 'gd':
         annotation.append(l[1])
     elif l[0] == 'sd':
@@ -87,7 +95,7 @@ for l in lines:
             falsepartialpositive_parts = re.split('\s{4,}', l[1])
             falsepartialpositive_code = falsepartialpositive_parts[0]
             falsepartialpositive_description = falsepartialpositive_parts[1].lstrip()
-            falsepartialpositives[falsepartialpositive_code] = falsepartialpositive_description
+            protein[falsepartialpositive_code] = falsepartialpositive_description
         except:
             print 'Problem with falsepartialpositive line(empty?): ', l[1]
     elif l[0] == 'dn':
@@ -162,9 +170,9 @@ for l in reference_entry:
         print 'Reference ','Error %s' % e
         print reference_entry
         
-for key, value in falsepartialpositives.items():
+for key, value in protein.items():
     try:
-        cur.execute("INSERT INTO falsepartialpositives(fingerprint_id, code, description) VALUES (%s,%s,%s)", (fingerprint_id, key, value)) 
+        cur.execute("INSERT INTO protein(fingerprint_id, code, description) VALUES (%s,%s,%s)", (fingerprint_id, key, value)) 
     except psycopg2.DatabaseError, e:
         print 'Falsepartialpositives ','Error %s' % e
 
@@ -240,7 +248,7 @@ for l in final_seq:
         
 for i in true_positives:
     try:
-        cur.execute("select id from falsepartialpositives where fingerprint_id= %s and code= %s", (fingerprint_id,i))
+        cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,i))
         protein_id = cur.fetchone()[0]
         cur.execute("INSERT INTO truepositives(fingerprint_id,protein_id) VALUES (%s,%s)", (fingerprint_id, protein_id))
     except psycopg2.DatabaseError, e:
@@ -248,7 +256,7 @@ for i in true_positives:
                 
 for key, value in truepartialpositives.items():
     try:
-        cur.execute("select id from falsepartialpositives where fingerprint_id= %s and code= %s", (fingerprint_id,key))
+        cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,key))
         protein_id = cur.fetchone()[0]
         cur.execute("INSERT INTO truepartialpositives(fingerprint_id, protein_id, numberofelements) VALUES (%s,%s,%s)", (fingerprint_id, protein_id, value)) 
     except psycopg2.DatabaseError, e:
