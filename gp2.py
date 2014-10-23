@@ -7,7 +7,7 @@ from datetime import datetime
 import psycopg2
 
 # file part
-file = open('true_p.txt', 'r')
+file = open('true_p.txt-back', 'r')
 content = file.read()
 
 # db part
@@ -36,6 +36,9 @@ inter_motif_distance = []
 initial_seq = []
 final_seq = []
 true_positives = []
+accession_entries = []
+tp_acc_combo = {}
+a_entries = []
 
 # Core text parsing part
 for l in content.splitlines(False):
@@ -55,7 +58,7 @@ for l in lines:
 	#COMPOUND(6)
 	try:
     	    no_motifs = re.search('COMPOUND\((\d+)\)', l[1]).group(1)
-            print no_motifs
+            #print no_motifs
         except:
             no_motifs = '' 
     # dates
@@ -126,6 +129,18 @@ for l in lines:
         tp_entry = l[1].split()
         for i in tp_entry:
             true_positives.append(i)
+            #true_positives[i] = '' #create an empty value which we will fill with the accession number after that
+    elif l[0] == 'KA': #true positives accession number
+        entries = re.findall('([A-Z0-9]*\s*[M|D]+1)+', l[1])
+        a_entries += entries
+        
+        #print tp_acc_combo
+        #print tp_acc_combo
+        #sys.exit()
+        #for key, value in temp_dict.items():
+        #    tp_acc_combo[key] = value
+        #tp_acc_combo = dict(temp_dict.items() + tp_acc_combo.items())
+        #print tp_acc_combo
     elif l[0] == 'sn': #true partial positives number of elements
         tpp_number_of_elements = re.search(r'Codes involving (\d+) elements', l[1]).group(1)
     elif l[0] == 'st':
@@ -133,7 +148,10 @@ for l in lines:
         for i in true_partial_entry:
             truepartialpositives[i] = tpp_number_of_elements 
             
-#sys.exit()
+#print true_positives       
+tp_acc_combo=dict(zip(true_positives, a_entries))
+print tp_acc_combo
+sys.exit()
 # Before creating the fingerprint apply some fixes
 summary = '\n'.join(summary)
 # annotation
