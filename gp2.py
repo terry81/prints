@@ -149,8 +149,9 @@ cfi = '\n'.join(cfi)
 # join the reference part and preserve the new lines
 reference = '\n'.join(reference)
 # create the combination of true positives with the accession number
-tp_acc_combo=dict(zip(true_positives, a_entries))
 
+#This is used only for tests so the SQL part is not valid
+sys.exit()
 # SQL Part 
 # Create the fingerprint
 try:
