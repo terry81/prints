@@ -149,6 +149,9 @@ cfi = '\n'.join(cfi)
 # join the reference part and preserve the new lines
 reference = '\n'.join(reference)
 # create the combination of true positives with the accession number
+tp_acc_combo=dict(zip(true_positives, a_entries))
+
+print tp_acc_combo
 
 #This is used only for tests so the SQL part is not valid
 sys.exit()
@@ -254,7 +257,8 @@ for l in final_seq:
     except psycopg2.DatabaseError, e:
         print 'Final seq ', 'Error %s' % e        
 
-        
+# true positives
+# insert the missing accession number        
 for i in true_positives:
     try:
         cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,i))
