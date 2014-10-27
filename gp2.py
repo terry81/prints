@@ -26,7 +26,7 @@ annotation = []
 summary = []
 cfi  = [] #composite fingerprint index
 protein = {}
-truepartialpositives = {}
+truepartialpositives = []
 motifs = []
 scan_history = []
 crossreference = []
@@ -38,7 +38,11 @@ final_seq = []
 true_positives = []
 accession_entries = []
 tp_acc_combo = {}
+tpp_acc_combo = {}
+tpp_number_of_elevements = {}
 a_entries = []
+a1_entries = []
+tppa_entries = []
 
 # Core text parsing part
 for l in content.splitlines(False):
@@ -130,14 +134,18 @@ for l in lines:
         for i in tp_entry:
             true_positives.append(i)
     elif l[0] == 'KA': #true positives accession number
-        entries = re.findall('([A-Z0-9]*\s*[M|D]+1)+', l[1])
+        entries = re.findall('([A-Z0-9]*)\s*[M|D]+1', l[1])
         a_entries += entries
     elif l[0] == 'sn': #true partial positives number of elements
         tpp_number_of_elements = re.search(r'Codes involving (\d+) elements', l[1]).group(1)
     elif l[0] == 'st':
         true_partial_entry = l[1].split()
         for i in true_partial_entry:
-            truepartialpositives[i] = tpp_number_of_elements 
+            truepartialpositives.append(i)
+            tpp_number_of_elevements[i] = tpp_number_of_elements
+    elif l[0] == 'K1': #true partial positives accession number
+        entries_1 = re.findall('([A-Z0-9]*)\s*[M|D]+1', l[1])
+        tppa_entries += entries_1
             
 
 # Before creating the fingerprint apply some fixes
@@ -151,10 +159,29 @@ reference = '\n'.join(reference)
 # create the combination of true positives with the accession number
 tp_acc_combo=dict(zip(true_positives, a_entries))
 
-print tp_acc_combo
+tpp_acc_combo=dict(zip(truepartialpositives, tppa_entries))
+
+#print tpp_acc_combo
+
+#print tpp_number_of_elevements
+
+for key, value in tpp_acc_combo.items():
+    print key, value, tpp_number_of_elevements[key]
+
+sys.exit()
+
+# create the combination of true PARTIAL positives with the accession number
+
+tpp_acc_combo=dict(zip(truepartialpositives, tppa_entries))
+
+#print tp_acc_combo
+print tpp_acc_combo
+sys.exit()
+
+#print tp_acc_combo
 
 #This is used only for tests so the SQL part is not valid
-sys.exit()
+#sys.exit()
 # SQL Part 
 # Create the fingerprint
 try:
@@ -259,14 +286,16 @@ for l in final_seq:
 
 # true positives
 # insert the missing accession number        
-for i in true_positives:
+#for i in true_positives:
+for key,value in tp_acc_combo.items():
+    print key,value
     try:
-        cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,i))
+        cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,key))
         protein_id = cur.fetchone()[0]
-        cur.execute("INSERT INTO truepositives(fingerprint_id,protein_id) VALUES (%s,%s)", (fingerprint_id, protein_id))
+        cur.execute("INSERT INTO truepositives(fingerprint_id,protein_id,accession_number) VALUES (%s,%s,%s)", (fingerprint_id, protein_id, value))
     except psycopg2.DatabaseError, e:
         print 'True positives ', 'Error %s' % e 
-                
+sys.exit()                
 for key, value in truepartialpositives.items():
     try:
         cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,key))
