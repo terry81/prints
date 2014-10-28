@@ -161,25 +161,6 @@ tp_acc_combo=dict(zip(true_positives, a_entries))
 
 tpp_acc_combo=dict(zip(truepartialpositives, tppa_entries))
 
-#print tpp_acc_combo
-
-#print tpp_number_of_elevements
-
-for key, value in tpp_acc_combo.items():
-    print key, value, tpp_number_of_elevements[key]
-
-sys.exit()
-
-# create the combination of true PARTIAL positives with the accession number
-
-tpp_acc_combo=dict(zip(truepartialpositives, tppa_entries))
-
-#print tp_acc_combo
-print tpp_acc_combo
-sys.exit()
-
-#print tp_acc_combo
-
 #This is used only for tests so the SQL part is not valid
 #sys.exit()
 # SQL Part 
@@ -288,18 +269,21 @@ for l in final_seq:
 # insert the missing accession number        
 #for i in true_positives:
 for key,value in tp_acc_combo.items():
-    print key,value
     try:
         cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,key))
         protein_id = cur.fetchone()[0]
         cur.execute("INSERT INTO truepositives(fingerprint_id,protein_id,accession_number) VALUES (%s,%s,%s)", (fingerprint_id, protein_id, value))
     except psycopg2.DatabaseError, e:
         print 'True positives ', 'Error %s' % e 
-sys.exit()                
-for key, value in truepartialpositives.items():
+
+#for key, value in tpp_acc_combo.items():
+#    print key, value, tpp_number_of_elevements[key]
+        
+for key, value in tpp_acc_combo.items():
+    print key, value
     try:
         cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,key))
         protein_id = cur.fetchone()[0]
-        cur.execute("INSERT INTO truepartialpositives(fingerprint_id, protein_id, numberofelements) VALUES (%s,%s,%s)", (fingerprint_id, protein_id, value)) 
+        cur.execute("INSERT INTO truepartialpositives(fingerprint_id, protein_id, numberofelements,accession_number) VALUES (%s,%s,%s,%s)", (fingerprint_id, protein_id, tpp_number_of_elevements[key], value)) 
     except psycopg2.DatabaseError, e:
         print 'Falsepartialpositives ','Error %s' % e
