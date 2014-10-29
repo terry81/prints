@@ -5,7 +5,7 @@ import re
 from datetime import datetime
 import psycopg2
 
-fingerprints_file = open( "prints42_0.kdat", "r" )
+fingerprints_file = open( "prints42_0_adapted.kdat", "r" )
 fingerprints_content = fingerprints_file.read()
 fingerprints = fingerprints_content.split('---custom_delimiter_for_fingerprint---')
 
@@ -30,8 +30,7 @@ for entry in fingerprints:
         summary = []
         cfi  = [] #composite fingerprint index
         proteins = {}
-        truepartialpositives = {}
-        true_positives = []
+        truepartialpositives = []
         motifs = []
         scan_history = []
         crossreference = []
@@ -40,7 +39,14 @@ for entry in fingerprints:
         inter_motif_distance = []
         initial_seq = []
         final_seq = []
-        
+        true_positives = []
+        accession_entries = []
+        tp_acc_combo = {}
+        tpp_acc_combo = {}
+        tpp_number_of_elevements = {}
+        a_entries = []
+        a1_entries = []
+        tppa_entries = []        
         for l in entry.splitlines(False):
             tag, sep, contents = l.partition(';')
             contents = contents.lstrip()
@@ -103,12 +109,19 @@ for entry in fingerprints:
                 tp_entry = l[1].split()
                 for i in tp_entry:
                     true_positives.append(i)
+            elif l[0] == 'KA': #true positives accession number
+                entries = re.findall('([A-Z0-9]*)\s*[M|D]+1', l[1])
+                a_entries += entries
             elif l[0] == 'sn': #true partial positives number of elements
                 tpp_number_of_elements = re.search(r'Codes involving (\d+) elements', l[1]).group(1)
             elif l[0] == 'st':
                 true_partial_entry = l[1].split()
                 for i in true_partial_entry:
-                    truepartialpositives[i] = tpp_number_of_elements 
+                    truepartialpositives.append(i)
+                    tpp_number_of_elevements[i] = tpp_number_of_elements
+            elif l[0] == 'K1': #true partial positives accession number
+                entries_1 = re.findall('([A-Z0-9]*)\s*[M|D]+1', l[1])
+                tppa_entries += entries_1           
             elif l[0] == 'dn':
                 scan_history.append(l[1])
             elif l[0] == 'ic': #initial motifs
@@ -144,6 +157,11 @@ for entry in fingerprints:
         cfi = '\n'.join(cfi)
         # join the reference part and preserve the new lines
         reference = '\n'.join(reference)
+        
+        # create the combination of true positives with the accession number
+        tp_acc_combo=dict(zip(true_positives, a_entries))
+
+        tpp_acc_combo=dict(zip(truepartialpositives, tppa_entries))
 
         # SQL Part 
         # Create the fingerprint
@@ -253,18 +271,22 @@ for entry in fingerprints:
                 cur.execute("INSERT INTO seq(motif_id,sequence,pcode,start,interval) VALUES (%s,%s,%s,%s,%s)", (motif_id, l[1][0], l[1][1], l[1][2], l[1][3]))
             except psycopg2.DatabaseError, e:
                 print 'Final seq ', 'Error %s' % e
-        for i in true_positives:
-            try:
-                cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,i))
-                protein_id = cur.fetchone()[0]
-                cur.execute("INSERT INTO truepositives(fingerprint_id,protein_id) VALUES (%s,%s)", (fingerprint_id, protein_id))
-            except psycopg2.DatabaseError, e:
-                print 'True positives ', 'Error %s' % e
-        for key, value in truepartialpositives.items():
+        for key,value in tp_acc_combo.items():
             try:
                 cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,key))
                 protein_id = cur.fetchone()[0]
-                cur.execute("INSERT INTO truepartialpositives(fingerprint_id, protein_id, numberofelements) VALUES (%s,%s,%s)", (fingerprint_id, protein_id, value)) 
+                cur.execute("INSERT INTO truepositives(fingerprint_id,protein_id,accession_number) VALUES (%s,%s,%s)", (fingerprint_id, protein_id, value))
+            except psycopg2.DatabaseError, e:
+                print 'True positives ', 'Error %s' % e 
+
+        #for key, value in tpp_acc_combo.items():
+        #    print key, value, tpp_number_of_elevements[key]
+                
+        for key, value in tpp_acc_combo.items():
+            try:
+                cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,key))
+                protein_id = cur.fetchone()[0]
+                cur.execute("INSERT INTO truepartialpositives(fingerprint_id, protein_id, numberofelements,accession_number) VALUES (%s,%s,%s,%s)", (fingerprint_id, protein_id, tpp_number_of_elevements[key], value)) 
             except psycopg2.DatabaseError, e:
                 print 'Falsepartialpositives ','Error %s' % e
     except:
