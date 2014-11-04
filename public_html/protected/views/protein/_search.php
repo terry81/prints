@@ -16,7 +16,7 @@
 	</div>
 
 	<div class="row">
-		<?php echo $form->label($model, 'code'); ?>
+		<?php echo $form->label($model, 'pcode'); ?>
 		<?php echo $form->textField($model, 'code', array('maxlength' => 20)); ?>
 	</div>
 

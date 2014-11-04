@@ -48,6 +48,7 @@ array(
 
         }
 ?><h2>Sequences</h2>
+<pre>
 <table>
 <tr><th>Sequences</th><th>Pcode</th><th>Start</th><th>Interval</th></tr>
 <?php
@@ -71,3 +72,4 @@ array(
 
 ?>
 </table>
+</pre>

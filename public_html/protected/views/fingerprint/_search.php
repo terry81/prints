@@ -61,16 +61,6 @@
 		<?php echo $form->textArea($model, 'annotation'); ?>
 	</div>
 
-	<div class="row">
-		<?php echo $form->label($model, 'cfi'); ?>
-		<?php echo $form->textArea($model, 'cfi'); ?>
-	</div>
-
-	<div class="row">
-		<?php echo $form->label($model, 'summary'); ?>
-		<?php echo $form->textArea($model, 'summary'); ?>
-	</div>
-
 	<div class="row buttons">
 		<?php echo GxHtml::submitButton(Yii::t('app', 'Search')); ?>
 	</div>

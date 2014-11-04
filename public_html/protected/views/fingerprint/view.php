@@ -51,7 +51,7 @@ $this->menu=array(
 	}
 ?>
 
-<h2>Crossreference</h2>
+<h2>Database Cross-References</h2>
 <?php
 	echo GxHtml::openTag('ul');
 	foreach($model->crossreferences as $relatedModel) {
@@ -72,65 +72,88 @@ $this->menu=array(
             echo 'INTERPRO '.$crossreference->accession;
         } elseif (GxHtml::encode(GxHtml::valueEx($relatedModel))=="CATH") {
             echo 'CATH <a href="http://www.cathdb.info/cgi-bin/search.pl?search_text='.$crossreference->accession.'">'.$crossreference->accession.'</a>';
+        }  elseif (GxHtml::encode(GxHtml::valueEx($relatedModel))=="PFAM") {
+            echo 'PFAM '.$crossreference->accession.' '.$crossreference->identifier;
         }
 		echo GxHtml::closeTag('li');
 	}
 ?>
 
-<h2>Proteins</h2>
+</br>
+<h2>Protein Titles</h2>
 <?php
 	echo GxHtml::openTag('ul');
 	foreach($model->proteins as $relatedModel) {		
         $protein = Protein::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
         echo GxHtml::openTag('li');
-        echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('protein/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
+        //echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('protein/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
+        echo '<a href="http://www.uniprot.org/uniprot/'.$relatedModel.'">'.$relatedModel.'</a>';
         echo '&nbsp;&nbsp;&nbsp;'.$protein->description;
         echo GxHtml::closeTag('li');
 	}
 	echo GxHtml::closeTag('ul');
 ?>
 
-<h2><?php echo GxHtml::encode($model->getRelationLabel('truepartialpositives')); ?></h2>
+
+<h2>True-positives</h2>
 <table>
-<tr><th>Protein</th><th>Number of elements</th></tr>
+<tr><th>Protein code</th><th>Accession number</th></tr>
 <?php
-
-
-	foreach($model->truepartialpositives as $relatedModel) {
-        $truepartialpositive = Truepartialpositives::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
-		$protein = Protein::model()->findByPk($truepartialpositive->protein_id);
-		echo GxHtml::openTag('re'); 
-        echo GxHtml::openTag('td');        
-		echo GxHtml::link(GxHtml::encode($protein->code), array('truepartialpositives/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
-        echo GxHtml::closeTag('td');
-        echo GxHtml::openTag('td'); 
-        echo $truepartialpositive->numberofelements;
-		echo GxHtml::closeTag('td');
-        echo GxHtml::closeTag('tr');
-	}
-?>
-</table>
-<h2><?php echo GxHtml::encode($model->getRelationLabel('truepositives')); ?></h2>
-<?php
-	echo GxHtml::openTag('ul');
 	foreach($model->truepositives as $relatedModel) {
 		$truepositive = Truepositives::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
         $protein = Protein::model()->findByPk($truepositive->protein_id);
-		echo GxHtml::openTag('li');
-		echo GxHtml::link(GxHtml::encode($protein->code), array('truepositives/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
-		echo GxHtml::closeTag('li');
+        echo '<tr><td>'.$protein->code.'</td>'.'<td><a href="http://www.uniprot.org/uniprot/'.$truepositive->accession_number.'">'.$truepositive->accession_number.'</a></td></tr>';
 	}
-	echo GxHtml::closeTag('ul');
-?><h2><?php echo GxHtml::encode($model->getRelationLabel('motifs')); ?></h2>
+?>
+</table>
+<?php
+	foreach($model->truepartialpositives as $relatedModel) {
+        $truepartialpositive = Truepartialpositives::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+		$protein = Protein::model()->findByPk($truepartialpositive->protein_id);
+        $tpp_array[$protein->code] = array($truepartialpositive->numberofelements, $truepartialpositive->accession_number);
+	}
+    if (!empty($tpp_array)) {
+        echo '<h2>True-partial-positives</h2>';
+        echo '<table><tr><th>Protein title</th><th>Accession number</th><th>Number of elements</th></tr>';
+        arsort($tpp_array);
+        foreach ($tpp_array as $key => $val) {
+        //The link to Uniprot is connected to the accession number as requested by prof. Attwood
+            echo '<tr><td>'.$key.'</td><td><a href="http://www.uniprot.org/uniprot/'.$val[1].'">'.$val[1].'</a></td><td>'.$val[0].'</td>';
+        }
+        echo '</table></br></br>';
+    }
+?>
+
+<h2>Initial Motifs</h2>
 <?php
 	echo GxHtml::openTag('ul');
 	foreach($model->motifs as $relatedModel) {
-		echo GxHtml::openTag('li');
-		echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
-		echo GxHtml::closeTag('li');
-	}
+		$motif = Motif::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        if ($motif->position == 'initial') {
+            echo GxHtml::openTag('li');
+            echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
+            echo GxHtml::closeTag('li');
+        }
+    }
 	echo GxHtml::closeTag('ul');
-?><h2>Scan History</h2>
+?>
+
+<h2>Final Motifs</h2>
+<?php
+	echo GxHtml::openTag('ul');
+	foreach($model->motifs as $relatedModel) {
+		$motif = Motif::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        if ($motif->position == 'final') {
+            echo GxHtml::openTag('li');
+            echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
+            echo GxHtml::closeTag('li');
+        }
+    }
+	echo GxHtml::closeTag('ul');
+?>
+
+
+<h2>Scan History</h2>
 <?php
 	echo GxHtml::openTag('ul');
 	foreach($model->scanhistories as $relatedModel) {

@@ -11,7 +11,7 @@ class ProteinController extends GxController {
     public function accessRules() {
         return array(
             array('allow', // allow all users to perform 'index' and 'view' actions
-                'actions' => array('index','view'),
+                'actions' => array('index','view', 'search'),
                 'users' => array('*'),
             ),
             array('allow', // allow authenticated user to perform 'create' action
@@ -81,6 +81,15 @@ class ProteinController extends GxController {
 			'dataProvider' => $dataProvider,
 		));
 	}
+	
+	public function actionSearch() {
+                $model = new Protein('search');
+                $model->unsetAttributes();
+
+                $this->render('search', array(
+                        'model' => $model,
+                ));
+        }
 
 	public function actionAdmin() {
 		$model = new Protein('search');

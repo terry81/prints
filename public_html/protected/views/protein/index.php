@@ -6,8 +6,7 @@ $this->breadcrumbs = array(
 );
 
 $this->menu = array(
-	array('label'=>Yii::t('app', 'Create') . ' ' . Protein::label(), 'url' => array('create')),
-	array('label'=>Yii::t('app', 'Manage') . ' ' . Protein::label(2), 'url' => array('admin')),
+	array('label'=>Yii::t('app', 'Search') . ' ' . Protein::label(), 'url' => array('search')),
 );
 ?>
 
