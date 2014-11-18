@@ -16,8 +16,29 @@ $this->menu=array(
 
 <h1><?php echo Yii::t('app', 'View') . ' ' . GxHtml::encode($model->label()) . ' ' . GxHtml::encode(GxHtml::valueEx($model)); ?></h1>
 
-<pre>
-<?php $this->widget('zii.widgets.CDetailView', array(
+<?php
+$model->annotation = trim(preg_replace('/\n{2,}/', 'secret_delimiter', $model->annotation));
+$model->annotation = trim(preg_replace('/\n+/', ' ', $model->annotation));
+$model->annotation = trim(preg_replace('/secret_delimiter/', "\n\n", $model->annotation));
+
+$model->creation_date = strtotime($model->creation_date );
+$model->creation_date = date ('d-m-Y', $model->creation_date);
+
+$model->update_date = strtotime($model->update_date );
+$model->update_date = date ('d-m-Y', $model->update_date);
+
+
+//$model->summary = trim(preg_replace('/\b(\d{3})\b codes/', "0$1 codes", $model->summary));
+//$model->summary = trim(preg_replace('/\b(\d{2})\b codes/', "00$1 codes", $model->summary));
+//$model->summary = trim(preg_replace('/\b(\d{1})\b codes/', "000$1 codes", $model->summary));
+
+$model->summary = preg_replace('/\b(\d{3})\b codes/', "0$1 codes", $model->summary);
+$model->summary = preg_replace('/\b(\d{2})\b codes/', "00$1 codes", $model->summary);
+$model->summary = preg_replace('/\b(\d{1})\b codes/', "000$1 codes", $model->summary);
+
+$model->cfi = preg_replace('/\n\|\s+1\s+2/', "\n&nbsp;| 1 2", $model->cfi);
+
+$this->widget('zii.widgets.CDetailView', array(
 	'data' => $model,
 	'attributes' => array(
 'id',
@@ -27,17 +48,29 @@ $this->menu=array(
 'creation_date',
 'update_date',
 'title',
-'annotation',
-'cfi',
-'summary',
+array(
+       'name'=>'annotation',
+       'value'=>nl2br($model->annotation),
+       'type'=>'raw',
+      ),
+array(
+       'name'=>'cfi',
+       'value'=>nl2br($model->cfi),
+       'type'=>'raw',
+     ),
+array(
+       'name'=>'summary',
+       'value'=>nl2br($model->summary),
+       'type'=>'raw',
+     ),
 	),
 )); ?>
-</pre>
 
-<h2><?php echo GxHtml::encode($model->getRelationLabel('references')); ?></h2>
+<h2>Literature References</h2>
 <?php
 	foreach($model->references as $relatedModel) {
         $reference = Reference::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        //print '<tr><td>'.$reference->author.'</td><td>'.$reference->title.'</td><td>'.$reference->journal.'</td><td>'.$reference->year.'</td></tr>';
         $this->widget('zii.widgets.CDetailView', array(
             'data' => $reference,
             'attributes' => array(
@@ -50,7 +83,6 @@ $this->menu=array(
     echo '&nbsp;';
 	}
 ?>
-
 <h2>Database Cross-References</h2>
 <?php
 	echo GxHtml::openTag('ul');
@@ -80,45 +112,34 @@ $this->menu=array(
 ?>
 
 </br>
-<h2>Protein Titles</h2>
-<?php
-	echo GxHtml::openTag('ul');
-	foreach($model->proteins as $relatedModel) {		
-        $protein = Protein::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
-        echo GxHtml::openTag('li');
-        //echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('protein/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
-        echo '<a href="http://www.uniprot.org/uniprot/'.$relatedModel.'">'.$relatedModel.'</a>';
-        echo '&nbsp;&nbsp;&nbsp;'.$protein->description;
-        echo GxHtml::closeTag('li');
-	}
-	echo GxHtml::closeTag('ul');
-?>
 
 
 <h2>True-positives</h2>
-<table>
-<tr><th>Protein code</th><th>Accession number</th></tr>
+<table style="table">
+<col width="50"><col width="50"><col width="900">
+<tr><th>Protein ID code</th><th>Accession number</th><th>Description</th></tr>
 <?php
 	foreach($model->truepositives as $relatedModel) {
 		$truepositive = Truepositives::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
         $protein = Protein::model()->findByPk($truepositive->protein_id);
-        echo '<tr><td>'.$protein->code.'</td>'.'<td><a href="http://www.uniprot.org/uniprot/'.$truepositive->accession_number.'">'.$truepositive->accession_number.'</a></td></tr>';
+        echo '<tr><td>'.$protein->code.'</td>'.'<td><a href="http://www.uniprot.org/uniprot/'.$truepositive->accession_number.'">'.$truepositive->accession_number.'</a></td><td>'.$protein->description.'</td></tr>';
 	}
 ?>
 </table>
+</div>
 <?php
 	foreach($model->truepartialpositives as $relatedModel) {
         $truepartialpositive = Truepartialpositives::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
 		$protein = Protein::model()->findByPk($truepartialpositive->protein_id);
-        $tpp_array[$protein->code] = array($truepartialpositive->numberofelements, $truepartialpositive->accession_number);
+        $tpp_array[$protein->code] = array($truepartialpositive->numberofelements, $truepartialpositive->accession_number, $protein->description);
 	}
     if (!empty($tpp_array)) {
         echo '<h2>True-partial-positives</h2>';
-        echo '<table><tr><th>Protein title</th><th>Accession number</th><th>Number of elements</th></tr>';
+        echo '<table style="table"><col width="50"><col width="50"><col width="50"><col width="900"><tr><th>Protein ID code</th><th>Accession number</th><th>Number of motifs</th><th>Description</th></tr>';
         arsort($tpp_array);
         foreach ($tpp_array as $key => $val) {
         //The link to Uniprot is connected to the accession number as requested by prof. Attwood
-            echo '<tr><td>'.$key.'</td><td><a href="http://www.uniprot.org/uniprot/'.$val[1].'">'.$val[1].'</a></td><td>'.$val[0].'</td>';
+            echo '<tr><td>'.$key.'</td><td><a href="http://www.uniprot.org/uniprot/'.$val[1].'">'.$val[1].'</a></td><td>'.$val[0].'</td><td>'.$val[2].'</td>';
         }
         echo '</table></br></br>';
     }
@@ -164,9 +185,6 @@ $this->menu=array(
         echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->iterations_number;
         echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->hitlist_length;
         echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->scanning_method;
-		echo GxHtml::openTag('li');
-		echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('scanhistory/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
-		echo GxHtml::closeTag('li');
 	}
 	echo GxHtml::closeTag('ul');
 ?>

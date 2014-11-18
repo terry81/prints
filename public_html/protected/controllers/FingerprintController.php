@@ -1,6 +1,7 @@
 <?php
 
 class FingerprintController extends GxController {
+	public $defaultAction = 'search';
 
 
 	public function filters() {

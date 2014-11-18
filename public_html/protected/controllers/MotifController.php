@@ -2,6 +2,7 @@
 
 class MotifController extends GxController {
 
+	public $defaultAction = 'search';
 
 	public function filters() {
         return array(

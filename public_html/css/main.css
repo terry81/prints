@@ -3,7 +3,7 @@ body
 	margin: 0;
 	padding: 0;
 	color: #555;
-	font: normal 10pt Arial,Helvetica,sans-serif;
+	font: normal 10pt Monospace,Helvetica,sans-serif;
 	background: #EFEFEF;
 }
 
@@ -24,7 +24,7 @@ body
 
 #content
 {
-    padding: 20px;
+    padding: 10px;
 }
 
 #sidebar
