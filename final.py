@@ -46,7 +46,8 @@ for entry in fingerprints:
         tpp_number_of_elevements = {}
         a_entries = []
         a1_entries = []
-        tppa_entries = []        
+        tppa_entries = []
+        reference_parts = {}        
         for l in entry.splitlines(False):
             tag, sep, contents = l.partition(';')
             contents = contents.lstrip()
@@ -184,14 +185,26 @@ for entry in fingerprints:
         reference_entry = re.split('\n\s*\n', reference)
 
         for l in reference_entry:
+            #create a new temporary list
+            temp_list = l.splitlines()
+            #take the journal and the author
+            reference_parts['journal'] = temp_list.pop(-1)
+            reference_parts['author'] = temp_list.pop(0)
+            reference_parts['title'] = '' #for now it is empty
+            # in the most simple way we have only one row remaining for the title
+            if len(temp_list) == 1:
+                reference_parts['title'] = temp_list[0]
+            else:
+                for line in temp_list:
+                    if re.search('[a-z]',line):
+                        reference_parts['title'] += line
+                    else:
+                        reference_parts['author'] += line
             try:
-                reference_parts = re.search('(?P<number>\d+)\. (?P<author>.*([A-Z]{2,}.*\n?)+\.)\n(?P<title>.*[a-z]{2,}.*\n?.*[a-z]{2,}.*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
-            except: 'Cannot parse reference for ', identifier, " with id ", fingerprint_id, l
-            try:
-                cur.execute("INSERT INTO reference(fingerprint_id, reference_number, author, title, journal, year) VALUES (%s,%s,%s,%s,%s,%s)", (fingerprint_id, reference_parts['number'], reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'], reference_parts['year'])) 
+                cur.execute("INSERT INTO reference(fingerprint_id, author, title, journal) VALUES (%s,%s,%s,%s)", (fingerprint_id, reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'])) 
             except psycopg2.DatabaseError, e:
                 print 'Reference ','Error %s' % e
-                print reference_entry
+                print reference_entry      
                 
         for key, value in proteins.items():
             try:
