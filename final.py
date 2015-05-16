@@ -197,7 +197,7 @@ for entry in fingerprints:
             else:
                 for line in temp_list:
                     if re.search('[a-z]',line):
-                        reference_parts['title'] += line
+                        reference_parts['title'] = reference_parts['title'] + ' ' + line
                     else:
                         reference_parts['author'] += line
             try:

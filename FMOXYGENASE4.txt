@@ -1,0 +1,340 @@
+gc; F2D3xnn3eNASE4
+gx; PR01124
+gn; COMPOUND(10)
+ga; 29-APR-1999
+gt; Flavin-containing monooxygenase (FMO) 4 signature
+gp; PRINTS; PR00368 FADPNR; PR00411 PNDRDTASEI; PR00420 RNGMNOXGNASE
+gp; PRINTS; PR00370 FMOXYGENASE; PR01121 FMOXYGENASE1; PR01122 FMOXYGENASE2 
+gp; PRINTS; PR01123 FMOXYGENASE3; PR01125 FMOXYGENASE5 
+gp; INTERPRO; IPR002256
+gp; PFAM; PF00743 FMO-like
+bb;
+gr; 1. LAWTON, M.P., CASHMAN, J.R., CRESTEIL, T., DOLPHIN, C.T., ELFARRA, A.A.,
+gr; HINES, R.N., HODGSON, E., KIMURA, T., OZOLS, J., PHILLIPS, I.R.,
+gr; PHILPOT, R.M., POULSEN, L.L., RETTIE, A.E., SHEPHARD, E.A., WILLIAMS, D.E.
+gr; AND ZIEGLER, D.M.
+gr; A nomenclature for the mammalian flavin-containing monooxygenase gene
+gr; family based on amino acid sequence identities.
+gr; ARCH.BIOCHEM.BIOPHYS. 308(19) 254-257 (1994).
+gr;
+gr; 2. DOLPHIN, C.T., SHEPHARD, E.A., POVEY, S., PALMER, C.N.A., ZIEGLER, D.M.,
+gr; AYESH, R., SMITH, R.L. AND PHILLIPS, I.R.
+gr; Cloning, primary sequence and chromosome mapping of a human flavin-
+gr; containing monooxygenase (FMO1).
+gr; J.BIOL.CHEM. 266 12379-12385 (1991).
+gr;
+gr; 3. LAWTON, M.P., GASSER, R., TYNES, R.E., HODGSON, E. AND PHILPOT, R.M.
+gr; The flavin-containing monooxygenase enzymes expressed in rabbit liver and
+gr; lung are products of related but distinctly different genes.
+gr; J.BIOL.CHEM. 265 5855-5861 (1990).
+gr;
+gr; 4. LOMRI, N., GU, Q. AND CASHMAN, J.R.
+gr; Molecular cloning of the flavin-containing monooxygenase (FORM-II) cDNA
+gr; from adult human liver.
+gr; PROC.NATL.ACAD.SCI.U.S.A. 89 1685-1689 (1992). 
+gr;
+gr; 5. DOLPHIN, C.T., SHEPHARD, E.A., POVEY, S., SMITH, R.L. AND PHILLIPS, I. R.
+gr; Cloning, primary sequence and chromosomal localisation of human FMO2, a new
+gr; member of the flavin-containing monooxygenase family.
+gr; BIOCHEM.J. 287 261-267 (1992).
+gr;
+gr; 6. ATTA-ASAFO-ADJEI, E., LAWTON, M.P. AND PHILPOT, R.M.
+gr; Cloning, sequencing, distribution and expression in E.coli of flavin-
+gr; containing monooxygenase 1C1 - evidence for a third gene family in rabbits.
+gr; J.BIOL.CHEM. 268 9681-9689 (1993).
+gr;
+gr; 7. JOHNSTON, M., ANDREWS, S., BRINKMAN, R., COOPER, J., DING, H.,
+gr; DOVER, J., DU, Z., FAVELLO, A., FULTON, L., GATTUNG, S., GEISEL, C.,
+gr; KIRSTEN, J., KUCABA, T., HILLIER, L., JIER, M., JOHNSTON, L., LANGSTON, Y.,
+gr; LATREILLE, P., LOUIS, E.J., MACRI, C., MARDIS, E., MENEZES, S., MOUSER, L.,
+gr; NHAN, M., RIFKIN, L., RILES, L., ST.PETER, H., TREVASKIS, E., VAUGHAN, K.,
+gr; VIGNATI, D., WILCOX, L., WOHLDMAN, P., WATERSTON, R., WILSON, R. AND
+gr; VAUDIN, M.
+gr; Complete nucleotide sequence of Saccharomyces cerevisiae chromosome VIII.
+gr; SCIENCE 265 2077-2082 (1994). 
+gr;
+gr; 8. DOLPHIN, C.T., CULLINGFORD, T.E., SHEPHARD, E.A., SMITH, R.L. AND
+gr; PHILLIPS, I.R.
+gr; Differential developmental and tissue-specific regulation of expression of
+gr; the genes encoding three members of the flavin-containing monooxygenase
+gr; family of man, FMO1, FMO3 and FM04.
+gr; EUR.J.BIOCHEM. 235 683-689 (1996). 
+gr;
+gr; 9. BURNETT, V.L., LAWTON, M.P. AND PHILPOT, R.M.
+gr; Cloning and sequencing of flavin-containing monooxygenases FMO3 and FMO4
+gr; from rabbit and characterization of FMO3.
+gr; J.BIOL.CHEM. 269 14314-14322 (1994). 
+gr;
+gr; 10. STEHR, M., DIEKMANN, H., SMAU, L, SETH, O., GHISLA, S., SINGH, M. AND
+gr; MACHEROUX, P.
+gr; A hydrophobic sequence motif common to N-hydroxylating enzymes.
+gr; TRENDS BIOCHEM.SCI. 23 56-57 (1998).
+gr;
+gr; 11. OZOLS, J.
+gr; Covalent structure of liver microsomal flavin-containing monooxygenase 
+gr; form 1. 
+gr; J.BIOL.CHEM. 265 10289-10299 (1990).
+gr;
+gr; 12. FEDERHEN, S., HOTTON, C., LEIPE, D. AND SOUSSOV, V.
+gr; Calicivirus - NCBI Taxonomy Browser
+gr; http://www3.ncbi.nlm.nih.gov/htbin-post/Taxonomy/wgetorg?id=11975&lvl=3
+gr;
+gr; 13. RAWLINGS, N.D. AND BARRETT, A.J.
+gr; Family C24 - Clan PA - 3C endopeptidase 
+gr; http://www.bi.bbsrc.ac.uk/merops/famcards/c24.htm
+gr; 6. WATSON, S. AND ARKINSTALL, S.
+gr; 5-Hydroxytryptamine.
+gr; IN THE G PROTEIN-LINKED RECEPTOR FACTSBOOK, ACADEMIC PRESS, 1994, PP.159-180.
+gr;
+gr; 1. OTAKA, E. AND OOI, T.
+gr; Examination of protein sequence homologies: V. New perspectives on
+gr; evolution between bacterial and chloroplast-type ferredoxins inferred from
+gr; sequence evidence.
+gr; J.MOL.EVOL. 29 246-254 (1989).
+gr;
+gr; 2. MASON, J.R. AND CAMMACK, R.
+gr; The electron-transport proteins of hydroxylating bacterial dioxygenases.
+gr; ANNU.REV.MICROBIOL. 46 277-305 (1992).
+gr; 
+gr; 3. RYPNIEWSKI, W.R., BREITER, D.R., BENNING, M.M., WESENBERG, G., OH, B.H.,
+gr; MARKLEY, J.L., RAYMENT, I. AND HOLDEN, H.M.
+gr; Crystallization and structure determination to 2.5A resolution of the 
+gr; oxidized [2Fe-2S] ferredoxin isolated from Anabaena 7120. 
+gr; BIOCHEMISTRY 30 4126-4131 (1991).
+gr;
+gr; 4. DUTTON, J.E., LYNDON, J.R., HASLETT, B.G., TAKRURI, I.A.H., 
+gr; GLEAVES, J.T. AND BOULTER, D. 
+gr; Comparative studies on the properties of two ferredoxins from 
+gr; Pisum sativum. 
+gr; J.EXP.BOTANY 31 379-391 (1980).
+gr; 
+gr; 5. CORRELL, C.C., BATIE, C.J., BALLOU, D.P. AND LUDWIG, M.L.
+gr; Phthalate dioxygenase reductase: a modular structure for electron transfer 
+gr; from pyridine nucleotides to [2Fe-2S].
+gr; SCIENCE 258 1604-1610 (1992).
+gr;
+gr; 1. HENNIG, M., PFEFFER-HENNIG, S., DAUTER, Z. AND WILSON, K.S.
+gr; Crystal structure of narbonin at 1.8A resolution.
+gr; ACTA CRYSTALLOGR.D BIOL.CRYSTALLOGR. 51 177-189 (1995).
+gr;
+gr; 2. HENNIG, M., SCHLESIER, B., DAUTER, Z., PFEFFER, S., BETZEL, C.,
+gr; HOHNE, W.E. AND WILSON, K.S.
+gr; A TIM barrel protein without enzymatic activity? Crystal structure
+gr; of narbonin at 1.8A resolution.
+gr; FEBS LETT. 306(1) 80-84 (1992).
+bb;
+bb; http://www3.ncbi.nlm.nih.gov/htbin-post/Taxonomy/wgetorg?id=11975&lvl=3
+gd; Flavin-containing monooxygenases (FMOs) constitute a family of xenobiotic-
+gd; metabolising enzymes [1]. Using an NADPH cofactor and FAD prosthetic group,
+gd; these microsomal proteins catalyse the oxygenation of nucleophilic nitrogen,
+gd; sulphur, phosphorous and selenium atoms in a range of structurally diverse
+gd; compounds. FMOs have been implicated in the metabolism of a number of
+gd; pharmaceuticals, pesticides and toxicants. In man, lack of hepatic FMO-
+gd; catalysed trimethylamine metabolism results in trimethylaminuria (fish 
+gd; odour syndrome).
+gd;
+gd; Five mammalian forms of FMO are now known and have been designated
+gd; FMO1-FMO5 [2-6]: this is a recent nomenclature based on comparison of
+gd; amino acid sequences, and has been introduced in an attempt to eliminate
+gd; confusion inherent in multiple, laboratory-specific designations and
+gd; tissue-based classifications [1]. Following the determination of the
+gd; complete nucleotide sequence of S.cerevisiae [7], a novel gene was found
+gd; to encode a protein with similarity to mammalian monooygenases.
+gd;
+gd; FMO4 mRNA is present in low abundance in several foetal and adult tissues
+gd; and the corresponding gene thus appears to be expressed constitutively [8].
+gd; Sequence analysis reveals that FMO4 is 56% identical to FMO3; each is
+gd; encoded by a single gene [9]. The deduced amino acid sequence of human FM04 
+gd; includes the putative FAD- (GxGxxG) and NADP+ pyrophosphate-binding (GxGxxA)
+gd; sites characteristic of mammalian FMOs, a 'FATGY' motif that has also been
+gd; observed in a range of siderphore biosynthetic enzymes [10], and a C-terminal
+gd; hydrophobic segment that is believed to anchor the monooxygenase to the
+gd; microsomal membrane [11].
+gd;
+gd; FMOXYGENASE4 is a 10-element fingerprint that provides a signature for type
+gd; 4 flavin-containing monooxygenases. The fingerprint was derived from an
+gd; initial alignment of 2 sequences: the motifs were drawn from conserved
+gd; regions spanning virtually the full alignment length, focusing on those
+gd; sections that characterise type 4 FMOs but distinguish them from the rest
+gd; of the FMO family - motif 9 spans the C-terminal hydrophobic region thought
+gd; to act as a membrane anchor. A single iteration on SPTR37_9f was required to
+gd; reach convergence, no further sequences being identified beyond the starting
+gd; set. 
+bb;
+si; SUMMARY INFORMATION
+si; -------------------
+sd;    2 codes involving 10 elements
+sd;    0 codes involving  9 elements
+sd;    0 codes involving  8 elements
+sd;    0 codes involving  7 elements
+sd;    0 codes involving  6 elements
+sd;    0 codes involving  5 elements
+sd;    0 codes involving  4 elements
+sd;    0 codes involving  3 elements
+sd;    0 codes involving  2 elements
+bb;
+bb;
+ci; COMPOSITE FINGERPRINT INDEX
+ci; ---------------------------
+cr;
+cd; 10|   2    2    2    2    2    2    2    2    2    2  
+cd;  9|   0    0    0    0    0    0    0    0    0    0  
+cd;  8|   0    0    0    0    0    0    0    0    0    0  
+cd;  7|   0    0    0    0    0    0    0    0    0    0  
+cd;  6|   0    0    0    0    0    0    0    0    0    0  
+cd;  5|   0    0    0    0    0    0    0    0    0    0  
+cd;  4|   0    0    0    0    0    0    0    0    0    0  
+cd;  3|   0    0    0    0    0    0    0    0    0    0  
+cd;  2|   0    0    0    0    0    0    0    0    0    0  
+cd; --+---------------------------------------------------
+cd;   |   1    2    3    4    5    6    7    8    9   10  
+bb;
+bb;
+tp; FMO4_HUMAN     FMO4_RABIT     
+KA; P31512    M1   P36367    M1   
+bb;
+KF; FALSE_PARTIAL_POSITIVES
+bb;
+tt; FMO4_HUMAN       DIMETHYLANILINE MONOOXYGENASE [N-OXIDE FORMING] 4 (EC 1.14.13.8) (HEPATIC FLAVIN-CONTAINING MONOOXYGENASE 4) (FMO 4) (DIMETHYLANILINE OXIDASE 4) - HOMO SAPIENS (HUMAN).
+tt; FMO4_RABIT       DIMETHYLANILINE MONOOXYGENASE [N-OXIDE FORMING] 4 (EC 1.14.13.8) (HEPATIC FLAVIN-CONTAINING MONOOXYGENASE 4) (FMO 4) (DIMETHYLANILINE OXIDASE 4) (FMO 1E1) - ORYCTOLAGUS CUNICULUS (RABBIT).
+bb;
+bb;
+sh; SCAN HISTORY
+sh; ------------
+dn; SPTR37_9f   1    50 NSINGLE
+bb;
+bb;
+im; INITIAL MOTIF-SETS
+im; ------------------
+ic; FMOXYGENASE41
+il; 14
+it; FMO 4 motif I - 1
+id; KFTESSKDGMTRVY                   FMO4_HUMAN     41    41
+id; KYTETSKDGMTRIY                   FMO4_RABIT     41    41
+bb;
+ic; FMOXYGENASE42
+il; 13
+it; FMO 4 motif II - 1
+id; FMNHEKFWDYLQE                    FMO4_HUMAN     80    25
+id; FMSHSKFWNYLQE                    FMO4_RABIT     80    25
+bb;
+ic; FMOXYGENASE43
+il; 10
+it; FMO 4 motif III - 1
+id; QILHSQEYKI                       FMO4_HUMAN    168    75
+id; QILHCQEYKI                       FMO4_RABIT    168    75
+bb;
+ic; FMOXYGENASE44
+il; 15
+it; FMO 4 motif IV - 1
+id; YNMMVTRRCCSFIAQ                  FMO4_HUMAN    230    52
+id; FNMMITRRCLNVIEQ                  FMO4_RABIT    230    52
+bb;
+ic; FMOXYGENASE45
+il; 13
+it; FMO 4 motif V - 1
+id; LSITKGKKAKFIV                    FMO4_HUMAN    270    25
+id; LSITKGKNPKFIV                    FMO4_RABIT    270    25
+bb;
+ic; FMOXYGENASE46
+il; 13
+it; FMO 4 motif VI - 1
+id; PLKSLCTKKIFLY                    FMO4_HUMAN    339    56
+id; PLRSLCMKKMFLY                    FMO4_RABIT    339    56
+bb;
+ic; FMOXYGENASE47
+il; 13
+it; FMO 4 motif VII - 1
+id; GVFKDTSKDKFDY                    FMO4_HUMAN    417    65
+id; GVIKDTSEEKLSY                    FMO4_RABIT    417    65
+bb;
+ic; FMOXYGENASE48
+il; 18
+it; FMO 4 motif VIII - 1
+id; DSSKPASMSHYLKAWGAP               FMO4_HUMAN    503    73
+id; DSSKSASLSHYLKVWGAP               FMO4_RABIT    504    74
+bb;
+ic; FMOXYGENASE49
+il; 16
+it; FMO 4 motif IX - 1
+id; PVLLASLLLICKSSLF                 FMO4_HUMAN    520    -1
+id; PLLLASVLLICKSSHF                 FMO4_RABIT    521    -1
+bb;
+ic; FMOXYGENASE410
+il; 18
+it; FMO 4 motif X - 1
+id; FLKLVRDKLQDRMSPYLV               FMO4_HUMAN    535    -1
+id; FLKSVRDKLQNRIFPYLV               FMO4_RABIT    536    -1
+bb;
+fm; FINAL MOTIF-SETS
+fm; ----------------
+fc; FMOXYGENASE41
+fl; 14
+ft; FMO 4 motif I - 1
+fd; KFTESSKDGMTRVY                   FMO4_HUMAN     41    41
+fd; KYTETSKDGMTRIY                   FMO4_RABIT     41    41
+KD; INTER_MOTIF_DISTANCE REGION=0-1; MIN=41; MAX=41
+bb;
+fc; FMOXYGENASE42
+fl; 13
+ft; FMO 4 motif II - 1
+fd; FMNHEKFWDYLQE                    FMO4_HUMAN     80    25
+fd; FMSHSKFWNYLQE                    FMO4_RABIT     80    25
+KD; INTER_MOTIF_DISTANCE REGION=1-2; MIN=25; MAX=25
+bb;
+fc; FMOXYGENASE43
+fl; 10
+ft; FMO 4 motif III - 1
+fd; QILHSQEYKI                       FMO4_HUMAN    168    75
+fd; QILHCQEYKI                       FMO4_RABIT    168    75
+KD; INTER_MOTIF_DISTANCE REGION=2-3; MIN=75; MAX=75
+bb;
+fc; FMOXYGENASE44
+fl; 15
+ft; FMO 4 motif IV - 1
+fd; YNMMVTRRCCSFIAQ                  FMO4_HUMAN    230    52
+fd; FNMMITRRCLNVIEQ                  FMO4_RABIT    230    52
+KD; INTER_MOTIF_DISTANCE REGION=3-4; MIN=52; MAX=52
+bb;
+fc; FMOXYGENASE45
+fl; 13
+ft; FMO 4 motif V - 1
+fd; LSITKGKKAKFIV                    FMO4_HUMAN    270    25
+fd; LSITKGKNPKFIV                    FMO4_RABIT    270    25
+KD; INTER_MOTIF_DISTANCE REGION=4-5; MIN=25; MAX=25
+bb;
+fc; FMOXYGENASE46
+fl; 13
+ft; FMO 4 motif VI - 1
+fd; PLKSLCTKKIFLY                    FMO4_HUMAN    339    56
+fd; PLRSLCMKKMFLY                    FMO4_RABIT    339    56
+KD; INTER_MOTIF_DISTANCE REGION=5-6; MIN=56; MAX=56
+bb;
+fc; FMOXYGENASE47
+fl; 13
+ft; FMO 4 motif VII - 1
+fd; GVFKDTSKDKFDY                    FMO4_HUMAN    417    65
+fd; GVIKDTSEEKLSY                    FMO4_RABIT    417    65
+KD; INTER_MOTIF_DISTANCE REGION=6-7; MIN=65; MAX=65
+bb;
+fc; FMOXYGENASE48
+fl; 18
+ft; FMO 4 motif VIII - 1
+fd; DSSKPASMSHYLKAWGAP               FMO4_HUMAN    503    73
+fd; DSSKSASLSHYLKVWGAP               FMO4_RABIT    504    74
+KD; INTER_MOTIF_DISTANCE REGION=7-8; MIN=73; MAX=74
+bb;
+fc; FMOXYGENASE49
+fl; 16
+ft; FMO 4 motif IX - 1
+fd; PVLLASLLLICKSSLF                 FMO4_HUMAN    520    -1
+fd; PLLLASVLLICKSSHF                 FMO4_RABIT    521    -1
+KD; INTER_MOTIF_DISTANCE REGION=8-9; MIN=-1; MAX=-1
+bb;
+fc; FMOXYGENASE410
+fl; 18
+ft; FMO 4 motif X - 1
+fd; FLKLVRDKLQDRMSPYLV               FMO4_HUMAN    535    -1
+fd; FLKSVRDKLQNRIFPYLV               FMO4_RABIT    536    -1
+KD; INTER_MOTIF_DISTANCE REGION=9-10; MIN=-1; MAX=-1
+bb;

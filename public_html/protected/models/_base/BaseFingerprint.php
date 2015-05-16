@@ -68,6 +68,7 @@ abstract class BaseFingerprint extends GxActiveRecord {
 			'references' => array(self::HAS_MANY, 'Reference', 'fingerprint_id'),
 			'proteins' => array(self::HAS_MANY, 'Protein', 'fingerprint_id'),
 			'crossreferences' => array(self::HAS_MANY, 'Crossreference', 'fingerprint_id'),
+            		'seqs' => array(self::HAS_MANY, 'Seq', 'fingerprint_id'),
 		);
 	}
 
@@ -95,6 +96,7 @@ abstract class BaseFingerprint extends GxActiveRecord {
 			'references' => null,
 			'proteins' => null,
 			'crossreferences' => null,
+            'seqs' => null,
 		);
 	}
 

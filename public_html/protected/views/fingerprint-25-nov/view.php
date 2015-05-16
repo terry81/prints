@@ -1,0 +1,190 @@
+<?php
+
+$this->breadcrumbs = array(
+	$model->label(2) => array('index'),
+	GxHtml::valueEx($model),
+);
+
+$this->menu=array(
+	array('label'=>Yii::t('app', 'List') . ' ' . $model->label(2), 'url'=>array('index')),
+	array('label'=>Yii::t('app', 'Create') . ' ' . $model->label(), 'url'=>array('create')),
+	array('label'=>Yii::t('app', 'Update') . ' ' . $model->label(), 'url'=>array('update', 'id' => $model->id)),
+	array('label'=>Yii::t('app', 'Delete') . ' ' . $model->label(), 'url'=>'#', 'linkOptions' => array('submit' => array('delete', 'id' => $model->id), 'confirm'=>'Are you sure you want to delete this item?')),
+	array('label'=>Yii::t('app', 'Manage') . ' ' . $model->label(2), 'url'=>array('admin')),
+);
+?>
+
+<h1><?php echo Yii::t('app', 'View') . ' ' . GxHtml::encode($model->label()) . ' ' . GxHtml::encode(GxHtml::valueEx($model)); ?></h1>
+
+<?php
+$model->annotation = trim(preg_replace('/\n{2,}/', 'secret_delimiter', $model->annotation));
+$model->annotation = trim(preg_replace('/\n+/', ' ', $model->annotation));
+$model->annotation = trim(preg_replace('/secret_delimiter/', "\n\n", $model->annotation));
+
+$model->creation_date = strtotime($model->creation_date );
+$model->creation_date = date ('d-m-Y', $model->creation_date);
+
+$model->update_date = strtotime($model->update_date );
+$model->update_date = date ('d-m-Y', $model->update_date);
+
+
+//$model->summary = trim(preg_replace('/\b(\d{3})\b codes/', "0$1 codes", $model->summary));
+//$model->summary = trim(preg_replace('/\b(\d{2})\b codes/', "00$1 codes", $model->summary));
+//$model->summary = trim(preg_replace('/\b(\d{1})\b codes/', "000$1 codes", $model->summary));
+
+$model->summary = preg_replace('/\b(\d{3})\b codes/', "0$1 codes", $model->summary);
+$model->summary = preg_replace('/\b(\d{2})\b codes/', "00$1 codes", $model->summary);
+$model->summary = preg_replace('/\b(\d{1})\b codes/', "000$1 codes", $model->summary);
+
+$model->cfi = preg_replace('/\n\|\s+1\s+2/', "\n&nbsp;| 1 2", $model->cfi);
+
+$this->widget('zii.widgets.CDetailView', array(
+	'data' => $model,
+	'attributes' => array(
+'id',
+'identifier',
+'accession',
+'no_motifs',
+'creation_date',
+'update_date',
+'title',
+array(
+       'name'=>'annotation',
+       'value'=>nl2br($model->annotation),
+       'type'=>'raw',
+      ),
+array(
+       'name'=>'cfi',
+       'value'=>nl2br($model->cfi),
+       'type'=>'raw',
+     ),
+array(
+       'name'=>'summary',
+       'value'=>nl2br($model->summary),
+       'type'=>'raw',
+     ),
+	),
+)); ?>
+
+<h2>Literature References</h2>
+<?php
+	foreach($model->references as $relatedModel) {
+        $reference = Reference::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        //print '<tr><td>'.$reference->author.'</td><td>'.$reference->title.'</td><td>'.$reference->journal.'</td><td>'.$reference->year.'</td></tr>';
+        $this->widget('zii.widgets.CDetailView', array(
+            'data' => $reference,
+            'attributes' => array(
+            'author',
+            'title',
+            'journal',
+            'year',
+            ),
+        ));
+    echo '&nbsp;';
+	}
+?>
+<h2>Database Cross-References</h2>
+<?php
+	echo GxHtml::openTag('ul');
+	foreach($model->crossreferences as $relatedModel) {
+        //Find and extract the attributes for each reference
+        $crossreference = Crossreference::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        echo GxHtml::openTag('li');
+        //echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('crossreference/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
+        if (GxHtml::encode(GxHtml::valueEx($relatedModel))=="SCOP") {
+            echo 'SCOP <a href="http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?key='.$crossreference->accession.'">'.$crossreference->accession.'</a>';
+        } elseif (GxHtml::encode(GxHtml::valueEx($relatedModel))=="PROSITE") {
+            echo 'PROSITE <a href="http://prosite.expasy.org/cgi-bin/prosite/prosite-search-ac?'.$crossreference->accession.'">'.$crossreference->accession.'</a>';
+        } elseif (GxHtml::encode(GxHtml::valueEx($relatedModel))=="PDB") {
+            echo 'PDB <a href="http://www.ebi.ac.uk/thornton-srv/databases/cgi-bin/pdbsum/GetPage.pl?pdbcode='.$crossreference->accession.'">'.$crossreference->accession.'</a>';
+        } elseif (GxHtml::encode(GxHtml::valueEx($relatedModel))=="PRINTS") {
+            echo 'PRINTS <a href="http://www.bioinf.manchester.ac.uk/cgi-bin/dbbrowser/PRINTS/DoPRINTS.pl?cmd_a=Display&qua_a=none&fun_a=Text&qst_a='.$crossreference->accession.'"> '.$crossreference->accession.'</a> ';
+            echo '<a href="http://www.bioinf.manchester.ac.uk/cgi-bin/dbbrowser/PRINTS/DoPRINTS.pl?cmd_a=Display&qua_a=/Full&fun_a=Code&qst_a='.$crossreference->identifier.'">  '.$crossreference->identifier.'</a>';
+        } elseif (GxHtml::encode(GxHtml::valueEx($relatedModel))=="INTERPRO") {
+            echo 'INTERPRO '.$crossreference->accession;
+        } elseif (GxHtml::encode(GxHtml::valueEx($relatedModel))=="CATH") {
+            echo 'CATH <a href="http://www.cathdb.info/cgi-bin/search.pl?search_text='.$crossreference->accession.'">'.$crossreference->accession.'</a>';
+        }  elseif (GxHtml::encode(GxHtml::valueEx($relatedModel))=="PFAM") {
+            echo 'PFAM '.$crossreference->accession.' '.$crossreference->identifier;
+        }
+		echo GxHtml::closeTag('li');
+	}
+?>
+
+</br>
+
+
+<h2>True-positives</h2>
+<table style="table">
+<col width="50"><col width="50"><col width="900">
+<tr><th>Protein ID code</th><th>Accession number</th><th>Description</th></tr>
+<?php
+	foreach($model->truepositives as $relatedModel) {
+		$truepositive = Truepositives::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        $protein = Protein::model()->findByPk($truepositive->protein_id);
+        echo '<tr><td>'.$protein->code.'</td>'.'<td><a href="http://www.uniprot.org/uniprot/'.$truepositive->accession_number.'">'.$truepositive->accession_number.'</a></td><td>'.$protein->description.'</td></tr>';
+	}
+?>
+</table>
+</div>
+<?php
+	foreach($model->truepartialpositives as $relatedModel) {
+        $truepartialpositive = Truepartialpositives::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+		$protein = Protein::model()->findByPk($truepartialpositive->protein_id);
+        $tpp_array[$protein->code] = array($truepartialpositive->numberofelements, $truepartialpositive->accession_number, $protein->description);
+	}
+    if (!empty($tpp_array)) {
+        echo '<h2>True-partial-positives</h2>';
+        echo '<table style="table"><col width="50"><col width="50"><col width="50"><col width="900"><tr><th>Protein ID code</th><th>Accession number</th><th>Number of motifs</th><th>Description</th></tr>';
+        arsort($tpp_array);
+        foreach ($tpp_array as $key => $val) {
+        //The link to Uniprot is connected to the accession number as requested by prof. Attwood
+            echo '<tr><td>'.$key.'</td><td><a href="http://www.uniprot.org/uniprot/'.$val[1].'">'.$val[1].'</a></td><td>'.$val[0].'</td><td>'.$val[2].'</td>';
+        }
+        echo '</table></br></br>';
+    }
+?>
+
+<h2>Initial Motifs</h2>
+<?php
+	echo GxHtml::openTag('ul');
+	foreach($model->motifs as $relatedModel) {
+		$motif = Motif::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        if ($motif->position == 'initial') {
+            echo GxHtml::openTag('li');
+            echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
+            echo GxHtml::closeTag('li');
+        }
+    }
+	echo GxHtml::closeTag('ul');
+?>
+
+<h2>Final Motifs</h2>
+<?php
+	echo GxHtml::openTag('ul');
+	foreach($model->motifs as $relatedModel) {
+		$motif = Motif::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        if ($motif->position == 'final') {
+            echo GxHtml::openTag('li');
+            echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
+            echo GxHtml::closeTag('li');
+        }
+    }
+	echo GxHtml::closeTag('ul');
+?>
+
+
+<h2>Scan History</h2>
+<?php
+	echo GxHtml::openTag('ul');
+	foreach($model->scanhistories as $relatedModel) {
+        $scanhistory = Scanhistory::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        echo GxHtml::openTag('li');
+        echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('scanhistory/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
+        //echo $scanhistory->database;
+        echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->iterations_number;
+        echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->hitlist_length;
+        echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->scanning_method;
+	}
+	echo GxHtml::closeTag('ul');
+?>

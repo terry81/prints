@@ -181,24 +181,24 @@ KA; P13102    D1
 bb;
 sn; Codes involving 5 elements
 st; Q67119         
-KA; Q67119    D1   
+K1; Q67119    D1   
 KM; IIIII.         
 bb;
 sn; Codes involving 3 elements
 st; Q67097         Q82847         Q67091         Q82843         
-KA; Q67097    D1   Q82847    D1   Q67091    M1   Q82843    D1   
+K1; Q67097    D1   Q82847    D1   Q67091    M1   Q82843    D1   
 KM; III...         III...         III...         III...         
 st; Q82848         Q82846         Q82844         Q67090         
-KA; Q82848    D1   Q82846    D1   Q82844    D1   Q67090    M1   
+K1; Q82848    D1   Q82846    D1   Q82844    D1   Q67090    M1   
 KM; III...         III...         III...         III...         
 st; Q67098         Q82845         Q67089         Q83964         
-KA; Q67098    D1   Q82845    D1   Q67089    M1   Q83964    M1   
+K1; Q67098    D1   Q82845    D1   Q67089    M1   Q83964    M1   
 KM; ...III         III...         III...         III...         
 st; HEMA_INBBE     Q84097         HEMA_INBVK     HEMA_INBSI     
-KA; P17504    M1   Q84097    M1   P22092    M1   P03463    M1   
+K1; P17504    M1   Q84097    M1   P22092    M1   P03463    M1   
 KM; I..I.I         I..I.I         I..I.I         I..I.I         
 st; HEMA_INBOR     HEMA_INBEN     HEMA_INBLE     
-KA; P03464    M1   P10757    M1   P03460    M1   
+K1; P03464    M1   P10757    M1   P03460    M1   
 KM; I..I.I         I..I.I         I..I.I         
 bb;
 KF; FALSE_PARTIAL_POSITIVES

@@ -1,0 +1,7 @@
+sn; Codes involving 3 elements
+st; Q67097         Q82847         Q67091         Q82843
+K1; Q67097    D1   Q82847    D1   Q67091    M1   Q82843    D1
+KM; III...         III...         III...         III...
+st; Q82848         Q82846         Q82844         Q67090
+K1; Q82848    D1   Q82846    D1   Q82844    D1   Q67090    M1
+KM; III...         III...         III...         III...

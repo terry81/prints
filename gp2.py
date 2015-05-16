@@ -7,7 +7,7 @@ from datetime import datetime
 import psycopg2
 
 # file part
-file = open('true_p.txt-back', 'r')
+file = open('CYTCHRMECIAB.txt', 'r')
 content = file.read()
 
 # db part
@@ -43,6 +43,7 @@ tpp_number_of_elevements = {}
 a_entries = []
 a1_entries = []
 tppa_entries = []
+reference_parts = {}
 
 # Core text parsing part
 for l in content.splitlines(False):
@@ -183,13 +184,26 @@ if update_date:
 # Split reference entries by new lines
 reference_entry = re.split('\n\s*\n', reference)
 for l in reference_entry:
-    reference_parts = re.search('(?P<number>\w*)\. (?P<author>.*\n?[A-Z]{2,}.*)\n(?P<title>.*[a-z]{2,}.*\n?.*[a-z]{2,}.*)\n(?P<journal>.*)\((?P<year>\d\d\d\d)\)', l, re.MULTILINE ).groupdict()
+    #create a new temporary list
+    temp_list = l.splitlines()
+    #take the journal and the author
+    reference_parts['journal'] = temp_list.pop(-1)
+    reference_parts['author'] = temp_list.pop(0)
+    reference_parts['title'] = '' #for now it is empty
+    # in the most simple way we have only one row remaining for the title
+    if len(temp_list) == 1:
+        reference_parts['title'] = temp_list[0]
+    else:
+        for line in temp_list:
+            if re.search('[a-z]',line):
+                reference_parts['title'] += line
+            else:
+                reference_parts['author'] += line
     try:
-        cur.execute("INSERT INTO reference(fingerprint_id, author, title, journal, year) VALUES (%s,%s,%s,%s,%s)", (fingerprint_id, reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'], reference_parts['year'])) 
+        cur.execute("INSERT INTO reference(fingerprint_id, author, title, journal) VALUES (%s,%s,%s,%s)", (fingerprint_id, reference_parts['author'].rstrip('\n'), reference_parts['title'], reference_parts['journal'])) 
     except psycopg2.DatabaseError, e:
         print 'Reference ','Error %s' % e
-        print reference_entry
-        
+        print reference_entry      
 for key, value in protein.items():
     try:
         cur.execute("INSERT INTO protein(fingerprint_id, code, description) VALUES (%s,%s,%s)", (fingerprint_id, key, value)) 
@@ -283,7 +297,8 @@ for key, value in tpp_acc_combo.items():
     print key, value
     try:
         cur.execute("select id from protein where fingerprint_id= %s and code= %s", (fingerprint_id,key))
-        protein_id = cur.fetchone()[0]
-        cur.execute("INSERT INTO truepartialpositives(fingerprint_id, protein_id, numberofelements,accession_number) VALUES (%s,%s,%s,%s)", (fingerprint_id, protein_id, tpp_number_of_elevements[key], value)) 
+        if cur.rowcount > 1:
+			protein_id = cur.fetchone()[0]
+			cur.execute("INSERT INTO truepartialpositives(fingerprint_id, protein_id, numberofelements,accession_number) VALUES (%s,%s,%s,%s)", (fingerprint_id, protein_id, tpp_number_of_elevements[key], value))
     except psycopg2.DatabaseError, e:
         print 'Falsepartialpositives ','Error %s' % e

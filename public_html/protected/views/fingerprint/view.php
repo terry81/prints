@@ -1,7 +1,7 @@
 <?php
 
 $this->breadcrumbs = array(
-	$model->label(2) => array('index'),
+	$model->label(2) => array('search'),
 	GxHtml::valueEx($model),
 );
 
@@ -24,35 +24,31 @@ $model->annotation = trim(preg_replace('/secret_delimiter/', "\n\n", $model->ann
 $model->creation_date = strtotime($model->creation_date );
 $model->creation_date = date ('d-m-Y', $model->creation_date);
 
-$model->update_date = strtotime($model->update_date );
-$model->update_date = date ('d-m-Y', $model->update_date);
+if ($model->update_date) {
+    $model->update_date = strtotime($model->update_date );
+    $model->update_date = date ('d-m-Y', $model->update_date);
+} else {
+    $model->update_date = '';
+}
 
-
-//$model->summary = trim(preg_replace('/\b(\d{3})\b codes/', "0$1 codes", $model->summary));
-//$model->summary = trim(preg_replace('/\b(\d{2})\b codes/', "00$1 codes", $model->summary));
-//$model->summary = trim(preg_replace('/\b(\d{1})\b codes/', "000$1 codes", $model->summary));
-
-$model->summary = preg_replace('/\b(\d{3})\b codes/', "0$1 codes", $model->summary);
-$model->summary = preg_replace('/\b(\d{2})\b codes/', "00$1 codes", $model->summary);
-$model->summary = preg_replace('/\b(\d{1})\b codes/', "000$1 codes", $model->summary);
+$model->summary = preg_replace('/\b(\d{3})\b codes/', "&nbsp;$1 codes", $model->summary);
+$model->summary = preg_replace('/\b(\d{2})\b codes/', "&nbsp;&nbsp;$1 codes", $model->summary);
+$model->summary = preg_replace('/\b(\d{1})\b codes/', "&nbsp;&nbsp;&nbsp;$1 codes", $model->summary);
+$model->summary = preg_replace('/elements/', 'motifs', $model->summary);
 
 $model->cfi = preg_replace('/\n\|\s+1\s+2/', "\n&nbsp;| 1 2", $model->cfi);
+$model->cfi = preg_replace('/\b(\d{1})\b /', "&nbsp;$1 ", $model->cfi);
+
 
 $this->widget('zii.widgets.CDetailView', array(
 	'data' => $model,
 	'attributes' => array(
-'id',
 'identifier',
 'accession',
 'no_motifs',
 'creation_date',
 'update_date',
 'title',
-array(
-       'name'=>'annotation',
-       'value'=>nl2br($model->annotation),
-       'type'=>'raw',
-      ),
 array(
        'name'=>'cfi',
        'value'=>nl2br($model->cfi),
@@ -61,35 +57,29 @@ array(
 array(
        'name'=>'summary',
        'value'=>nl2br($model->summary),
-       'type'=>'raw',
+       'type'=>'html',
      ),
 	),
-)); ?>
+)); 
 
-<h2>Literature References</h2>
-<?php
-	foreach($model->references as $relatedModel) {
-        $reference = Reference::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
-        //print '<tr><td>'.$reference->author.'</td><td>'.$reference->title.'</td><td>'.$reference->journal.'</td><td>'.$reference->year.'</td></tr>';
-        $this->widget('zii.widgets.CDetailView', array(
-            'data' => $reference,
-            'attributes' => array(
-            'author',
-            'title',
-            'journal',
-            'year',
-            ),
+echo "</br><h2>Annotation</h2>";
+
+$this->widget('ext.expander.Expander',array(
+            'content'=>nl2br($model->annotation),
+            'config'=>array('slicePoint'=>300, 'expandText'=>'read more', 'userCollapseText'=>'read less', 'preserveWords'=>true)
         ));
-    echo '&nbsp;';
-	}
+echo "</br>";
+
+
 ?>
+
 <h2>Database Cross-References</h2>
 <?php
-	echo GxHtml::openTag('ul');
+	// echo GxHtml::openTag('ul');
 	foreach($model->crossreferences as $relatedModel) {
         //Find and extract the attributes for each reference
         $crossreference = Crossreference::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
-        echo GxHtml::openTag('li');
+        //echo GxHtml::openTag('li');
         //echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('crossreference/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
         if (GxHtml::encode(GxHtml::valueEx($relatedModel))=="SCOP") {
             echo 'SCOP <a href="http://scop.mrc-lmb.cam.ac.uk/scop/search.cgi?key='.$crossreference->accession.'">'.$crossreference->accession.'</a>';
@@ -107,11 +97,22 @@ array(
         }  elseif (GxHtml::encode(GxHtml::valueEx($relatedModel))=="PFAM") {
             echo 'PFAM '.$crossreference->accession.' '.$crossreference->identifier;
         }
-		echo GxHtml::closeTag('li');
+		echo '; ';
+        // echo GxHtml::closeTag('li');
 	}
 ?>
 
-</br>
+</br></br>
+<h2>Literature References</h2>
+<?php
+	foreach($model->references as $relatedModel) {
+        $reference = Reference::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        print $reference->author.'</br>'.$reference->title.'</br>'.$reference->journal.'</br>'.'</br>';
+	}
+?>
+
+
+</br></br>
 
 
 <h2>True-positives</h2>
@@ -145,46 +146,47 @@ array(
     }
 ?>
 
+
+<h2>Scan History</h2>
+<?php
+	foreach($model->scanhistories as $relatedModel) {
+        $scanhistory = Scanhistory::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        echo '&nbsp;- ';
+        echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('scanhistory/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
+        echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->iterations_number;
+        echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->hitlist_length;
+        echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->scanning_method;
+        echo '</br>';
+	}
+    echo '</br>';
+?>
+
 <h2>Initial Motifs</h2>
 <?php
-	echo GxHtml::openTag('ul');
 	foreach($model->motifs as $relatedModel) {
 		$motif = Motif::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        $seqs = Seq::model()->findAllByAttributes(array('motif_id'=>$motif['motif_id']));
         if ($motif->position == 'initial') {
-            echo GxHtml::openTag('li');
-            echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
-            echo GxHtml::closeTag('li');
+            echo '&nbsp;- '.GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true))).' Length: '.$motif['length'].'. '.$motif['title'].'</br>';
+            foreach($seqs as $item) {
+                print '&nbsp-- '.$item['sequence'].' '.$item['pcode'].' '.$item['start'].' '. $item['interval'].'</br>';
+            }
+            echo '</br>';
         }
     }
-	echo GxHtml::closeTag('ul');
 ?>
 
 <h2>Final Motifs</h2>
 <?php
-	echo GxHtml::openTag('ul');
 	foreach($model->motifs as $relatedModel) {
 		$motif = Motif::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
+        $seqs = Seq::model()->findAllByAttributes(array('motif_id'=>$motif['motif_id']));
         if ($motif->position == 'final') {
-            echo GxHtml::openTag('li');
-            echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
-            echo GxHtml::closeTag('li');
+            echo '&nbsp;- '.GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true))).' Length: '.$motif['length'].'. '.$motif['title'];
+            foreach($seqs as $item) {
+                print '&nbsp-- '.$item['sequence'].' '.$item['pcode'].' '.$item['start'].' '. $item['interval'].'</br>';
+            }
+            echo '</br>';
         }
     }
-	echo GxHtml::closeTag('ul');
-?>
-
-
-<h2>Scan History</h2>
-<?php
-	echo GxHtml::openTag('ul');
-	foreach($model->scanhistories as $relatedModel) {
-        $scanhistory = Scanhistory::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
-        echo GxHtml::openTag('li');
-        echo GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('scanhistory/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true)));
-        //echo $scanhistory->database;
-        echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->iterations_number;
-        echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->hitlist_length;
-        echo '&nbsp;&nbsp;&nbsp;'.$scanhistory->scanning_method;
-	}
-	echo GxHtml::closeTag('ul');
 ?>

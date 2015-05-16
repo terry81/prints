@@ -4,7 +4,7 @@
 use strict;
 use warnings;
 
-my $file = 'true_p1.txt';
+my $file = 'true_p.txt';
 
 open INPUT, '<', $file or warn;
 my @input_array=<INPUT>;

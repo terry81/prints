@@ -1,7 +1,7 @@
 <?php
 
 $this->breadcrumbs = array(
-	$model->label(2) => array('index'),
+	$model->label(2) => array('search'),
 	Yii::t('app', 'Manage'),
 );
 
@@ -37,6 +37,8 @@ You may optionally enter a comparison operator (&lt;, &lt;=, &gt;, &gt;=, &lt;&g
 </div><!-- search-form -->
 
 <?php $this->widget('zii.widgets.grid.CGridView', array(
+    'htmlOptions'=>array('style'=>'cursor: pointer;'),
+    'selectionChanged'=>"function(id){window.location='" . Yii::app()->urlManager->createUrl('fingerprint/view', array('id'=>'')) . "' + $.fn.yiiGridView.getSelection(id);}",
 	'id' => 'fingerprint-grid',
 	'dataProvider' => $model->search(),
 	'filter' => $model,
@@ -52,9 +54,5 @@ You may optionally enter a comparison operator (&lt;, &lt;=, &gt;, &gt;=, &lt;&g
 		'cfi',
 		'summary',
 		*/
-		array(
-			'class' => 'CButtonColumn',
-            'template' => '{view}',
-		),
 	),
 )); ?>

@@ -1,7 +1,7 @@
 <?php
 
 $this->breadcrumbs = array(
-	$model->label(2) => array('index'),
+	$model->label(2) => array('search'),
 	Yii::t('app', 'Manage'),
 );
 
@@ -38,6 +38,8 @@ You may optionally enter a comparison operator (&lt;, &lt;=, &gt;, &gt;=, &lt;&g
 </div><!-- search-form -->
 
 <?php $this->widget('zii.widgets.grid.CGridView', array(
+    'htmlOptions'=>array('style'=>'cursor: pointer;'),
+    'selectionChanged'=>"function(id){window.location='" . Yii::app()->urlManager->createUrl('protein/view', array('id'=>'')) . "' + $.fn.yiiGridView.getSelection(id);}",
 	'id' => 'protein-grid',
 	'dataProvider' => $model->search(),
 	'filter' => $model,
@@ -50,8 +52,5 @@ You may optionally enter a comparison operator (&lt;, &lt;=, &gt;, &gt;=, &lt;&g
 				),
 		'code',
 		'description',
-		array(
-			'class' => 'CButtonColumn',
-		),
 	),
 )); ?>
