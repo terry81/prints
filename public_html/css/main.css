@@ -47,6 +47,11 @@ body
 	font-size: 200%;
 }
 
+#rght_table
+{
+	text-align: center;
+}
+
 #mainmenu
 {
 	background:white url(bg.gif) repeat-x left top;

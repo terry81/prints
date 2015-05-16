@@ -40,7 +40,7 @@ abstract class BaseReference extends GxActiveRecord {
 		return array(
 			array('author', 'required'),
 			array('fingerprint_id, year', 'numerical', 'integerOnly'=>true),
-			array('author, title', 'length', 'max'=>500),
+			array('author, title', 'length', 'max'=>1500),
 			array('journal', 'length', 'max'=>100),
 			array('fingerprint_id, title, journal, year', 'default', 'setOnEmpty' => true, 'value' => null),
 			array('fingerprint_id, author, title, journal, literature_id, year', 'safe', 'on'=>'search'),

@@ -42,10 +42,10 @@ $model->cfi = preg_replace('/\n\|\s+1\s+2/', "\n&nbsp;| 1 2", $model->cfi);
 $model->cfi = preg_replace('/\b(\d{1})\b /', "&nbsp;&nbsp;$1 ", $model->cfi);
 $model->cfi = preg_replace('/\b(\d{2})\b /', "&nbsp;$1 ", $model->cfi);
 
-echo 'Title: '.$model->title.'<br />';
-echo 'Number of motifs: '.$model->no_motifs.'<br />';
-echo 'Creation date: '.$model->creation_date.'; Updated: '.$model->update_date.'<br />';
-echo 'Accession: '.$model->accession.'<br /><br />';
+echo 'Title: '.$model->title.'</br>';
+echo 'Number of motifs: '.$model->no_motifs.'</br>';
+echo 'Creation date: '.$model->creation_date.'; Updated: '.$model->update_date.'</br>';
+echo 'Accession: '.$model->accession.'</br></br>';
 
 ?>
 
@@ -109,28 +109,28 @@ echo 'Accession: '.$model->accession.'<br /><br />';
 	}
 
 	
-echo "<br /><br /><h2>Annotation</h2>";
+echo "</br></br><h2>Annotation</h2>";
 $this->widget('ext.expander.Expander',array(
             'content'=>nl2br($model->annotation),
             'config'=>array('slicePoint'=>300, 'expandText'=>'read more', 'userCollapseText'=>'read less', 'preserveWords'=>true)
         ));	
 ?>
 
-<br /><br />
+</br></br>
 <h2>Literature References</h2>
 <?php
 	foreach($model->references as $relatedModel) {
         $reference = Reference::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
-        print $reference->author.'<br />'.$reference->title.'<br />'.$reference->journal.'<br />'.'<br />';
+        print $reference->author.'</br>'.$reference->title.'</br>'.$reference->journal.'</br>'.'</br>';
 	}
 ?>
 
 <?php
-echo '<br /><h2>Summary</h2>'.nl2br($model->summary).'<br />';
-echo '<br /><h2>Composite Fingerprint Index</h2>'.nl2br($model->cfi).'<br />';
+echo '</br><h2>Summary</h2>'.nl2br($model->summary).'</br>';
+echo '</br><h2>Composite Fingerprint Index</h2>'.nl2br($model->cfi).'</br>';
 ?>
 
-<br /><br />
+</br></br>
 
 
 <h2>True-positives</h2>
@@ -160,7 +160,7 @@ echo '<br /><h2>Composite Fingerprint Index</h2>'.nl2br($model->cfi).'<br />';
         //The link to Uniprot is connected to the accession number as requested by prof. Attwood
             echo '<tr><td>'.$key.'</td><td><a href="http://www.uniprot.org/uniprot/'.$val[1].'">'.$val[1].'</a></td><td>'.$val[0].'</td><td>'.$val[2].'</td>';
         }
-        echo '</table><br /><br />';
+        echo '</table></br></br>';
     }
 ?>
 
@@ -192,7 +192,7 @@ echo '<br /><h2>Composite Fingerprint Index</h2>'.nl2br($model->cfi).'<br />';
 		$motif = Motif::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
         $seqs = Seq::model()->findAllByAttributes(array('motif_id'=>$motif['motif_id']));
         if ($motif->position == 'initial') {
-            echo '&nbsp;'.GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true))).' Length: '.$motif['length'].'. '.$motif['title'].'<br /><br />';
+            echo '&nbsp;'.GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true))).' Length: '.$motif['length'].'. '.$motif['title'].'</br></br>';
             print '<table style="width:300px">';
             foreach($seqs as $item) {
                 print '<tr>';
@@ -210,7 +210,7 @@ echo '<br /><h2>Composite Fingerprint Index</h2>'.nl2br($model->cfi).'<br />';
 		$motif = Motif::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
         $seqs = Seq::model()->findAllByAttributes(array('motif_id'=>$motif['motif_id']));
         if ($motif->position == 'final') {
-            echo '&nbsp;'.GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true))).' Length: '.$motif['length'].'. '.$motif['title'].'<br /><br />';
+            echo '&nbsp;'.GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true))).' Length: '.$motif['length'].'. '.$motif['title'].'</br></br>';
             print '<table style="width:300px">';
             foreach($seqs as $item) {
                 print '<tr>';

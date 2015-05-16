@@ -78,7 +78,7 @@
 		<?php echo $form->textArea($model, 'summary'); ?>
 		<?php echo $form->error($model,'summary'); ?>
 		</div><!-- row -->
-<!--
+
 		<label><?php echo GxHtml::encode($model->getRelationLabel('truepartialpositives')); ?></label>
 		<?php echo $form->checkBoxList($model, 'truepartialpositives', GxHtml::encodeEx(GxHtml::listDataEx(Truepartialpositives::model()->findAllAttributes(null, true)), false, true)); ?>
 		<label><?php echo GxHtml::encode($model->getRelationLabel('truepositives')); ?></label>
@@ -93,7 +93,7 @@
 		<?php echo $form->checkBoxList($model, 'proteins', GxHtml::encodeEx(GxHtml::listDataEx(Protein::model()->findAllAttributes(null, true)), false, true)); ?>
 		<label><?php echo GxHtml::encode($model->getRelationLabel('crossreferences')); ?></label>
 		<?php echo $form->checkBoxList($model, 'crossreferences', GxHtml::encodeEx(GxHtml::listDataEx(Crossreference::model()->findAllAttributes(null, true)), false, true)); ?>
--->
+
 <?php
 echo GxHtml::submitButton(Yii::t('app', 'Save'));
 $this->endWidget();

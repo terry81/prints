@@ -22,7 +22,6 @@ $model->annotation = trim(preg_replace('/\n{2,}/', 'secret_delimiter', $model->a
 $model->annotation = trim(preg_replace('/\n+/', ' ', $model->annotation));
 $model->annotation = trim(preg_replace('/secret_delimiter/', "\n\n", $model->annotation));
 
-
 $model->creation_date = strtotime($model->creation_date );
 $model->creation_date = date ('d-m-Y', $model->creation_date);
 
@@ -42,10 +41,48 @@ $model->cfi = preg_replace('/\n\|\s+1\s+2/', "\n&nbsp;| 1 2", $model->cfi);
 $model->cfi = preg_replace('/\b(\d{1})\b /', "&nbsp;&nbsp;$1 ", $model->cfi);
 $model->cfi = preg_replace('/\b(\d{2})\b /', "&nbsp;$1 ", $model->cfi);
 
-echo 'Title: '.$model->title.'<br />';
-echo 'Number of motifs: '.$model->no_motifs.'<br />';
-echo 'Creation date: '.$model->creation_date.'; Updated: '.$model->update_date.'<br />';
-echo 'Accession: '.$model->accession.'<br /><br />';
+echo 'Accession: '.$model->accession.'</br>';
+echo 'Number of motifs: '.$model->no_motifs.'</br>';
+echo 'Creation date: '.$model->creation_date.'</br>';
+echo 'Updated: '.$model->update_date.'</br>';
+echo 'Title: '.$model->title.'</br>';
+echo '</br><h2>CFI</h2>'.nl2br($model->cfi).'</br>';
+echo '</br><h2>Summary</h2>'.nl2br($model->summary);
+
+echo '</br></br></br>';
+
+
+/*$this->widget('zii.widgets.CDetailView', array(
+	'data' => $model,
+	'attributes' => array(
+'identifier',
+'accession',
+'no_motifs',
+'creation_date',
+'update_date',
+'title',
+array(
+       'name'=>'cfi',
+       'value'=>nl2br($model->cfi),
+       'type'=>'raw',
+     ),
+array(
+       'name'=>'summary',
+       'value'=>nl2br($model->summary),
+       'type'=>'html',
+     ),
+	),
+)); 
+*/
+
+echo "</br></br><h2>Annotation</h2>";
+
+$this->widget('ext.expander.Expander',array(
+            'content'=>nl2br($model->annotation),
+            'config'=>array('slicePoint'=>300, 'expandText'=>'read more', 'userCollapseText'=>'read less', 'preserveWords'=>true)
+        ));
+echo "</br>";
+
 
 ?>
 
@@ -58,6 +95,7 @@ echo 'Accession: '.$model->accession.'<br /><br />';
     $print_interpro = 0;
     $print_cath = 0; 
     $print_pfam = 0;
+	// echo GxHtml::openTag('ul');
 	foreach($model->crossreferences as $relatedModel) {
         //Find and extract the attributes for each reference
         $crossreference = Crossreference::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
@@ -81,7 +119,7 @@ echo 'Accession: '.$model->accession.'<br /><br />';
             $print_pdb++;
         } elseif (GxHtml::encode(GxHtml::valueEx($relatedModel))=="PRINTS") {
             if ($print_prints == 0) {
-                echo 'PRINTS: ';
+                echo '<br/>PRINTS: ';
             }
             echo ' <a href="http://www.bioinf.manchester.ac.uk/cgi-bin/dbbrowser/PRINTS/DoPRINTS.pl?cmd_a=Display&qua_a=none&fun_a=Text&qst_a='.$crossreference->accession.'">'.$crossreference->accession.'</a> ';
             echo ' <a href="http://www.bioinf.manchester.ac.uk/cgi-bin/dbbrowser/PRINTS/DoPRINTS.pl?cmd_a=Display&qua_a=/Full&fun_a=Code&qst_a='.$crossreference->identifier.'">'.$crossreference->identifier.'</a>';
@@ -107,30 +145,19 @@ echo 'Accession: '.$model->accession.'<br /><br />';
         }
          echo ';';
 	}
-
-	
-echo "<br /><br /><h2>Annotation</h2>";
-$this->widget('ext.expander.Expander',array(
-            'content'=>nl2br($model->annotation),
-            'config'=>array('slicePoint'=>300, 'expandText'=>'read more', 'userCollapseText'=>'read less', 'preserveWords'=>true)
-        ));	
 ?>
 
-<br /><br />
+</br></br>
 <h2>Literature References</h2>
 <?php
 	foreach($model->references as $relatedModel) {
         $reference = Reference::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
-        print $reference->author.'<br />'.$reference->title.'<br />'.$reference->journal.'<br />'.'<br />';
+        print $reference->author.'</br>'.$reference->title.'</br>'.$reference->journal.'</br>'.'</br>';
 	}
 ?>
 
-<?php
-echo '<br /><h2>Summary</h2>'.nl2br($model->summary).'<br />';
-echo '<br /><h2>Composite Fingerprint Index</h2>'.nl2br($model->cfi).'<br />';
-?>
 
-<br /><br />
+</br></br>
 
 
 <h2>True-positives</h2>
@@ -160,7 +187,7 @@ echo '<br /><h2>Composite Fingerprint Index</h2>'.nl2br($model->cfi).'<br />';
         //The link to Uniprot is connected to the accession number as requested by prof. Attwood
             echo '<tr><td>'.$key.'</td><td><a href="http://www.uniprot.org/uniprot/'.$val[1].'">'.$val[1].'</a></td><td>'.$val[0].'</td><td>'.$val[2].'</td>';
         }
-        echo '</table><br /><br />';
+        echo '</table></br></br>';
     }
 ?>
 
@@ -192,7 +219,7 @@ echo '<br /><h2>Composite Fingerprint Index</h2>'.nl2br($model->cfi).'<br />';
 		$motif = Motif::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
         $seqs = Seq::model()->findAllByAttributes(array('motif_id'=>$motif['motif_id']));
         if ($motif->position == 'initial') {
-            echo '&nbsp;'.GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true))).' Length: '.$motif['length'].'. '.$motif['title'].'<br /><br />';
+            echo '&nbsp;'.GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true))).' Length: '.$motif['length'].'. '.$motif['title'].'</br></br>';
             print '<table style="width:300px">';
             foreach($seqs as $item) {
                 print '<tr>';
@@ -210,7 +237,7 @@ echo '<br /><h2>Composite Fingerprint Index</h2>'.nl2br($model->cfi).'<br />';
 		$motif = Motif::model()->findByPK(GxActiveRecord::extractPkValue($relatedModel, true));
         $seqs = Seq::model()->findAllByAttributes(array('motif_id'=>$motif['motif_id']));
         if ($motif->position == 'final') {
-            echo '&nbsp;'.GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true))).' Length: '.$motif['length'].'. '.$motif['title'].'<br /><br />';
+            echo '&nbsp;'.GxHtml::link(GxHtml::encode(GxHtml::valueEx($relatedModel)), array('motif/view', 'id' => GxActiveRecord::extractPkValue($relatedModel, true))).' Length: '.$motif['length'].'. '.$motif['title'].'</br></br>';
             print '<table style="width:300px">';
             foreach($seqs as $item) {
                 print '<tr>';
