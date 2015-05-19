@@ -38,9 +38,13 @@ $model->summary = preg_replace('/\b(\d{2})\b codes/', "&nbsp;&nbsp;$1 codes", $m
 $model->summary = preg_replace('/\b(\d{1})\b codes/', "&nbsp;&nbsp;&nbsp;$1 codes", $model->summary);
 $model->summary = preg_replace('/elements/', 'motifs', $model->summary);
 
-$model->cfi = preg_replace('/\n\|\s+1\s+2/', "\n&nbsp;| 1 2", $model->cfi);
+$model->cfi = preg_replace('/\n\|\s+1\s+2/', "\n&nbsp;&nbsp;| 1 2", $model->cfi);
 $model->cfi = preg_replace('/\b(\d{1})\b /', "&nbsp;&nbsp;$1 ", $model->cfi);
 $model->cfi = preg_replace('/\b(\d{2})\b /', "&nbsp;$1 ", $model->cfi);
+$model->cfi = preg_replace('/\n(\d{1})\|/', "\n&nbsp;$1|", $model->cfi);
+$model->cfi = preg_replace('/^(\d{1})\|/', "\n&nbsp;$1|", $model->cfi);
+
+
 
 echo 'Title: '.$model->title.'<br />';
 echo 'Number of motifs: '.$model->no_motifs.'<br />';
