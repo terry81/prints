@@ -11,7 +11,7 @@ fingerprints = fingerprints_content.split('---custom_delimiter_for_fingerprint--
 
 # db part
 try:
-    conn=psycopg2.connect("dbname='prints_2' host='localhost' user='anatoliyd' password='adimitrov'")
+    conn=psycopg2.connect("dbname='prints_2' host='localhost' user='anatoliyd' password='removed'")
 except:
     print "I am unable to connect to the database."
     sys.exit('Exiting...')
